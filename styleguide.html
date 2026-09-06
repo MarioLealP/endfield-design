@@ -1,0 +1,1824 @@
+<title>Endfield Design System</title>
+<meta name="description" content="The canonical visual language for clockmost, rebuilt from the Arknights: Endfield interface — tokens, components, motifs, motion and voice in one reference.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Jost:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   ENDFIELD DESIGN SYSTEM · endfield.css
+   Rebuilt 2026-08-30 from the game HUD, the official gryphline.com stylesheets,
+   the touying-endfield theme and the ReEnd component study.
+
+   Everything under @layer tokens / base / motif / components / utilities is the
+   portable sheet. The @layer page rules after it are this document only.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer tokens, base, motif, components, utilities, page;
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+@layer tokens {
+  :root {
+    /* ── Signature hues — fixed ─────────────────────────────────────────── */
+    --ef-yellow:     #FFFA00;   /* the one accent. Structure, focus, energy.   */
+    --ef-yellow-hot: #FDFD1F;   /* hover / emission                            */
+    --ef-cyan:       #00FFA2;   /* data · connectivity · OK — used sparingly   */
+    --ef-magenta:    #FF1AAC;   /* alert · highlight — used sparingly          */
+    --ef-crimson:    #D91E36;   /* editorial category banners only             */
+
+    /* ── HUD — the operating surface (default) ──────────────────────────── */
+    --ef-ground:     #0F0F10;   /* the void. Faint cool cast, not OLED black.  */
+    --ef-surface:    #17181A;   /* panels, cards                              */
+    --ef-surface-2:  #1E2024;   /* raised / nested — cooler                   */
+    --ef-well:       #0A0A0B;   /* inset fields, code, sunken                 */
+    --ef-line:       #33363C;   /* the STEEL — every border + inactive state.  */
+    --ef-line-2:     #4A4E56;   /* hover edge, emphasised divider             */
+
+    --ef-ink:        #F0F0F2;   /* primary text — cool near-white             */
+    --ef-ink-2:      #A8ABB2;   /* secondary                                  */
+    --ef-ink-3:      #6C6F76;   /* muted labels, captions                     */
+    --ef-ink-4:      #44474D;   /* disabled, faint rules                      */
+
+    --ef-accent:      var(--ef-yellow);
+    --ef-accent-ink:  var(--ef-yellow);  /* accent AS text — flips in DOC     */
+    --ef-marker:      var(--ef-yellow);  /* thin state marks — dark gold in DOC */
+    --ef-on-accent:   #0F0F10;           /* text on a yellow fill             */
+    --ef-link:        #67B2E0;
+
+    --ef-ok:   var(--ef-cyan);
+    --ef-warn: var(--ef-yellow);
+    --ef-crit: var(--ef-magenta);
+
+    /* ── Extended hues — the game leans on these past the core three ────── */
+    --ef-orange: #FF7A1A;   /* notification squares · power draw / consumption */
+    --ef-green:  #7BE04B;   /* "important" · online · confirm · ascension      */
+    --ef-blue:   #4FA8FF;   /* stat deltas · secondary numerics               */
+    --ef-notify: var(--ef-orange);
+    --ef-online: var(--ef-green);
+
+    /* data-viz roles — the DOC-mode yield / usage reports (g70, g71) */
+    --ef-data-yield:   var(--ef-yellow);
+    --ef-data-usage:   var(--ef-cyan);
+    --ef-data-deficit: var(--ef-crimson);
+
+    /* item-rarity spine — the bottom border on inventory tiles (g52, g77) */
+    --ef-rarity-1: var(--ef-ink-3);
+    --ef-rarity-2: #6BD98C;
+    --ef-rarity-3: #4FA8FF;
+    --ef-rarity-4: #B37DFF;
+    --ef-rarity-5: #FFD84D;
+    --ef-rarity-6: #FFB020;
+
+    --ef-skew: -8deg;   /* the parallelogram menu-tile shear                  */
+    /* CMYK glitch strip — the triband's louder cousin, for reward/gacha edges */
+    --ef-glitchstrip: linear-gradient(90deg,
+      var(--ef-cyan) 0 22%, var(--ef-yellow) 22% 50%,
+      var(--ef-crimson) 50% 74%, var(--ef-magenta) 74% 100%);
+
+    /* ── Type ──────────────────────────────────────────────────────────── */
+    --ef-font-display: "Chakra Petch", "Bahnschrift", "DIN Alternate", system-ui, sans-serif;
+    --ef-font-body:    "Jost", "Century Gothic", "Futura", system-ui, sans-serif;
+    --ef-font-mono:    "JetBrains Mono", ui-monospace, "Consolas", monospace;
+    /* Authentic upgrade if licensed: Novecentosanswide (display) + Gilroy (body). */
+
+    --ef-t-11: 0.6875rem; --ef-t-12: 0.75rem;  --ef-t-13: 0.8125rem;
+    --ef-t-14: 0.875rem;  --ef-t-16: 1rem;     --ef-t-18: 1.125rem;
+    --ef-t-21: 1.3125rem; --ef-t-26: 1.625rem; --ef-t-34: 2.125rem;
+    --ef-t-46: 2.875rem;  --ef-t-72: 4.5rem;
+
+    --ef-track-label:  0.14em;   /* uppercase mono labels                     */
+    --ef-track-tight: -0.005em;  /* large display                            */
+    --ef-track-wide:   0.3em;    /* wordmark                                  */
+
+    /* ── Space — 4px base ─────────────────────────────────────────────── */
+    --ef-1: 4px; --ef-2: 8px; --ef-3: 12px; --ef-4: 16px;
+    --ef-5: 24px; --ef-6: 36px; --ef-7: 56px; --ef-8: 88px; --ef-9: 128px;
+
+    /* ── Structure ────────────────────────────────────────────────────── */
+    --ef-radius:  0px;    /* fully sharp. The chamfer carries the character.  */
+    --ef-cut:     10px;   /* corner chamfer depth                            */
+    --ef-cut-lg:  16px;
+    --ef-bw:      1px;    /* the hairline — most containers are just this     */
+    --ef-bw-2:    2px;
+    --ef-rail:    3px;    /* active leading edge                             */
+
+    --ef-bracket-size:  14px;
+    --ef-bracket-w:     2px;
+    --ef-bracket-color: color-mix(in srgb, var(--ef-yellow) 55%, transparent);
+
+    /* ── Motion ───────────────────────────────────────────────────────── */
+    --ef-ease:     cubic-bezier(1, 0, 0.7, 1);      /* snap — the game's curve */
+    --ef-ease-out: cubic-bezier(0.16, 1, 0.3, 1);   /* settle                  */
+    --ef-dur-1: 0.12s; --ef-dur-2: 0.28s; --ef-dur-3: 0.6s;
+
+    --ef-glow:      0 0 0.55rem rgba(255, 250, 0, 0.4);
+    --ef-glow-soft: 0 0 1.25rem rgba(255, 250, 0, 0.12);
+
+    /* the tri-colour brand mark — official gradient. Use ONCE per view. */
+    --ef-triband: linear-gradient(90deg,
+      var(--ef-magenta) 0, var(--ef-magenta) 2rem,
+      var(--ef-cyan)    0, var(--ef-cyan)    4rem,
+      var(--ef-yellow)  0, var(--ef-yellow)  100%);
+    --ef-triband-v: linear-gradient(180deg,
+      var(--ef-magenta) 0, var(--ef-magenta) 1.5rem,
+      var(--ef-cyan)    0, var(--ef-cyan)    3rem,
+      var(--ef-yellow)  0, rgba(255,250,0,0) 100%);
+
+    /* the two-corner chamfer — top-right + bottom-left */
+    --ef-chamfer: polygon(
+      0 0,
+      calc(100% - var(--ef-cut)) 0,
+      100% var(--ef-cut),
+      100% 100%,
+      var(--ef-cut) 100%,
+      0 calc(100% - var(--ef-cut)));
+
+    color-scheme: dark;
+  }
+
+  /* This is a committed dark-HUD design. The page defaults to HUD for every
+     viewer regardless of OS; DOC (the light "document" surface, seen on
+     official operator art over light grounds) is opt-in via [data-theme="light"]
+     and gets a full contrast pass of its own. */
+  :root[data-theme="light"] {
+    --ef-ground:    #F6F6F3;
+    --ef-surface:   #FFFFFF;
+    --ef-surface-2: #ECECE8;
+    --ef-well:      #E2E2DD;
+    --ef-line:      #BFC1C7;
+    --ef-line-2:    #8E9098;
+    --ef-ink:       #141519;   /* primary text                                */
+    --ef-ink-2:     #34363D;   /* secondary                                   */
+    --ef-ink-3:     #55575F;   /* muted — still ~7:1 on white                  */
+    --ef-ink-4:     #7E818A;   /* faint, but legible                          */
+    --ef-accent-ink:#141519;   /* yellow text fails on white — becomes near-black */
+    --ef-marker:    #7A6D00;   /* dark gold — thin marks stay legible on white */
+    --ef-on-accent: #0F0F10;
+    --ef-link:      #185FA0;
+    --ef-orange:    #C85A00;   /* darkened so it holds on white               */
+    --ef-green:     #2E7D32;
+    --ef-blue:      #1565C0;
+    --ef-bracket-color: color-mix(in srgb, #141519 50%, transparent);
+    --ef-glow: 0 0 0 1px rgba(20,21,25,0.16);
+    --ef-glow-soft: 0 2px 14px rgba(20,21,25,0.12);
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] {
+    --ef-ground:#0F0F10; --ef-surface:#17181A; --ef-surface-2:#1E2024; --ef-well:#0A0A0B;
+    --ef-line:#33363C; --ef-line-2:#4A4E56;
+    --ef-ink:#F0F0F2; --ef-ink-2:#A8ABB2; --ef-ink-3:#6C6F76; --ef-ink-4:#44474D;
+    --ef-accent-ink:var(--ef-yellow); --ef-marker:var(--ef-yellow); --ef-on-accent:#0F0F10; --ef-link:#67B2E0;
+    --ef-orange:#FF7A1A; --ef-green:#7BE04B; --ef-blue:#4FA8FF;
+    --ef-bracket-color: color-mix(in srgb, var(--ef-yellow) 55%, transparent);
+    --ef-glow: 0 0 .55rem rgba(255,250,0,.4); --ef-glow-soft: 0 0 1.25rem rgba(255,250,0,.12);
+    color-scheme: dark;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+
+  body {
+    background: var(--ef-ground);
+    color: var(--ef-ink);
+    font-family: var(--ef-font-body);
+    font-size: var(--ef-t-16);
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--ef-font-display);
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: var(--ef-track-tight);
+    text-transform: uppercase;
+    text-wrap: balance;
+    color: var(--ef-ink);
+  }
+  h1 { font-size: clamp(2.25rem, 6vw, var(--ef-t-72)); font-weight: 700; }
+  h2 { font-size: var(--ef-t-26); }
+  h3 { font-size: var(--ef-t-21); }
+  h4 { font-size: var(--ef-t-14); letter-spacing: var(--ef-track-label); color: var(--ef-ink-2); }
+
+  p  { max-width: 64ch; }
+  a  { color: var(--ef-link); text-decoration: none;
+       border-bottom: 1px solid color-mix(in srgb, var(--ef-link) 35%, transparent);
+       transition: border-color var(--ef-dur-1); }
+  a:hover { border-bottom-color: var(--ef-link); }
+  strong { color: var(--ef-ink); font-weight: 500; }
+  em { font-style: italic; color: var(--ef-ink); }
+  code, kbd, samp { font-family: var(--ef-font-mono); font-size: 0.9em; }
+
+  :focus-visible { outline: var(--ef-bw-2) solid var(--ef-accent); outline-offset: 3px; }
+  ::selection { background: var(--ef-yellow); color: #0F0F10; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ═══ @layer motif — the marks that make it Endfield ═══════════════════════ */
+@layer motif {
+  /* two-corner chamfer */
+  .ef-chamfer { clip-path: var(--ef-chamfer); }
+
+  /* corner brackets — TL + BR diagonal pair, offset just outside */
+  .ef-brackets { position: relative; }
+  .ef-brackets::before, .ef-brackets::after {
+    content: ""; position: absolute;
+    width: var(--ef-bracket-size); height: var(--ef-bracket-size);
+    border: var(--ef-bracket-w) solid var(--ef-bracket-color);
+    pointer-events: none;
+  }
+  .ef-brackets::before { top: -1px;  left: -1px;  border-right: 0; border-bottom: 0; }
+  .ef-brackets::after  { bottom: -1px; right: -1px; border-left: 0;  border-top: 0; }
+
+  /* the diamond marker — hollow available / filled active */
+  .ef-diamond {
+    display: inline-block; width: 0.6rem; height: 0.6rem;
+    border: var(--ef-bw-2) solid var(--ef-ink-3);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    transition: background var(--ef-dur-1) var(--ef-ease), border-color var(--ef-dur-1) var(--ef-ease);
+  }
+  .ef-diamond[data-active] { background: var(--ef-marker); border-color: var(--ef-marker); box-shadow: var(--ef-glow); }
+  .ef-diamond--sm { width: 0.4rem; height: 0.4rem; border-width: 1px; }
+
+  /* chevron run — ‹‹‹‹  ››››  directional decoration */
+  .ef-chevrons {
+    display: inline-flex; gap: 2px; color: var(--ef-ink-4);
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-11); letter-spacing: -0.1em;
+    user-select: none;
+  }
+  .ef-chevrons[data-run] span { animation: ef-chev 1.4s var(--ef-ease-out) infinite; }
+  .ef-chevrons[data-run] span:nth-child(2) { animation-delay: 0.12s; }
+  .ef-chevrons[data-run] span:nth-child(3) { animation-delay: 0.24s; }
+  .ef-chevrons[data-run] span:nth-child(4) { animation-delay: 0.36s; }
+
+  /* segmented data strip — barcode-ish edge texture */
+  .ef-datastrip {
+    height: 8px;
+    background: repeating-linear-gradient(90deg,
+      var(--ef-line) 0 3px, transparent 3px 5px,
+      var(--ef-line) 5px 6px, transparent 6px 11px,
+      var(--ef-ink-4) 11px 13px, transparent 13px 18px);
+    opacity: 0.7;
+  }
+
+  /* dot-matrix, faded off the edge */
+  .ef-dots {
+    background-image: radial-gradient(color-mix(in srgb, var(--ef-ink) 14%, transparent) 1px, transparent 1px);
+    background-size: 1.4rem 1.4rem;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 20%, #000 80%, transparent);
+            mask-image: linear-gradient(180deg, transparent, #000 20%, #000 80%, transparent);
+  }
+  .ef-halftone {
+    background-image: radial-gradient(currentColor 22%, transparent 23%);
+    background-size: 0.5rem 0.5rem;
+    -webkit-mask-image: linear-gradient(90deg, #000 30%, transparent);
+            mask-image: linear-gradient(90deg, #000 30%, transparent);
+  }
+
+  /* fade-to-glow divider — line that lights in the middle and fades at both ends */
+  .ef-rule { height: 1px; border: 0; background: var(--ef-line); }
+  .ef-rule--glow { background: linear-gradient(90deg, transparent, var(--ef-marker) 50%, transparent); opacity: 0.75; }
+  .ef-rule--tri  { height: var(--ef-rail); background: var(--ef-triband); }
+
+  /* the glitch echo — apply to a wrapper, put the text in data-text */
+  .ef-echo { position: relative; display: inline-block; margin-top: 0.45em; }
+  .ef-echo::before {
+    content: attr(data-text);
+    position: absolute; left: 0; top: -0.36em;
+    color: var(--ef-accent-ink); opacity: 0.18;
+    clip-path: polygon(0 0,100% 0,100% 34%,0 34%, 0 58%,100% 58%,100% 74%,0 74%);
+    transform: translateX(2px) scaleX(1.01);
+    pointer-events: none; white-space: nowrap;
+  }
+
+  /* microtext block — decorative telemetry */
+  .ef-micro {
+    font-family: var(--ef-font-mono); font-size: 7px; line-height: 1.4;
+    color: var(--ef-ink-4); letter-spacing: 0.05em; user-select: none;
+  }
+
+  @keyframes ef-chev { 0%,100%{opacity:.25;transform:translateX(0)} 50%{opacity:1;transform:translateX(2px)} }
+  @keyframes ef-breathe { 0%,100%{opacity:1;transform:rotate(45deg) scale(1)} 50%{opacity:.4;transform:rotate(45deg) scale(.8)} }
+  @keyframes ef-dspin { to { transform: rotate(405deg); } }
+  @keyframes ef-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes ef-glitch {
+    0%,100%{transform:translate(0)} 20%{transform:translate(-1px,1px)} 40%{transform:translate(-1px,-1px)}
+    60%{transform:translate(1px,1px)} 80%{transform:translate(1px,-1px)}
+  }
+  @keyframes ef-scan { to { transform: translate(-50%); } }
+}
+
+/* ═══ @layer components ═══════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── labels + values ────────────────────────────────────────────────── */
+  .ef-label {
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-11); font-weight: 500;
+    letter-spacing: var(--ef-track-label); text-transform: uppercase; color: var(--ef-ink-3);
+  }
+  .ef-value {
+    font-family: var(--ef-font-mono); font-weight: 700;
+    font-variant-numeric: tabular-nums; color: var(--ef-accent-ink);
+  }
+
+  /* ── section head — SEC.NN // TITLE ─────────────────────────────────── */
+  .ef-sec-head {
+    display: flex; align-items: baseline; gap: var(--ef-3);
+    padding-bottom: var(--ef-3); position: relative;
+    border-bottom: 1px solid var(--ef-line);
+  }
+  .ef-sec-head::after { content: ""; position: absolute; left: 0; bottom: -1px; width: 3rem; height: 2px; background: var(--ef-marker); }
+  .ef-sec-head .ef-idx { font-family: var(--ef-font-mono); font-size: var(--ef-t-12); font-weight: 700; color: var(--ef-accent-ink); letter-spacing: 0.05em; }
+  .ef-sec-head .ef-idx::after { content: " //"; color: var(--ef-ink-4); }
+
+  /* ── panel / card — a hairline outlined, chamfered container ────────── */
+  .ef-panel {
+    background: var(--ef-surface);
+    border: var(--ef-bw) solid var(--ef-line);
+    clip-path: var(--ef-chamfer);
+    padding: var(--ef-5);
+  }
+  .ef-card {
+    position: relative;
+    background: var(--ef-surface);
+    border: var(--ef-bw) solid var(--ef-line);
+    clip-path: var(--ef-chamfer);
+    padding: var(--ef-4);
+    transition: border-color var(--ef-dur-2) var(--ef-ease), background var(--ef-dur-2) var(--ef-ease);
+  }
+  .ef-card:hover { border-color: var(--ef-line-2); }
+  .ef-card[data-active] { border-color: var(--ef-accent); box-shadow: var(--ef-glow-soft); }
+  .ef-card__head { display: flex; align-items: center; gap: var(--ef-3); margin-bottom: var(--ef-3); }
+  .ef-card__title { font-family: var(--ef-font-display); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; font-size: var(--ef-t-16); }
+  .ef-card__meta  { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); color: var(--ef-ink-3); }
+
+  .ef-well {
+    background: var(--ef-well); border: var(--ef-bw) solid var(--ef-line);
+    padding: var(--ef-3) var(--ef-4);
+  }
+
+  /* icon plate */
+  .ef-icon {
+    width: 2.2rem; height: 2.2rem; flex-shrink: 0;
+    display: grid; place-items: center;
+    background: var(--ef-surface-2); border: 1px solid var(--ef-line);
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    color: var(--ef-accent-ink);
+  }
+  .ef-icon svg { width: 1.15rem; height: 1.15rem; }
+
+  /* ── buttons — outline by default, one fill per group ───────────────── */
+  .ef-btn {
+    position: relative;
+    display: inline-flex; align-items: center; gap: var(--ef-2);
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-12); font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.62rem 1.15rem;
+    color: var(--ef-ink); background: transparent;
+    border: var(--ef-bw) solid var(--ef-line-2);
+    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+    cursor: pointer;
+    transition: color var(--ef-dur-1) var(--ef-ease), border-color var(--ef-dur-1) var(--ef-ease), background var(--ef-dur-1) var(--ef-ease);
+  }
+  .ef-btn:hover { border-color: var(--ef-accent); color: var(--ef-accent-ink); background: color-mix(in srgb, var(--ef-yellow) 6%, transparent); }
+  .ef-btn:active { background: color-mix(in srgb, var(--ef-yellow) 12%, transparent); }
+
+  .ef-btn--primary { background: var(--ef-accent); color: var(--ef-on-accent); border-color: var(--ef-accent); }
+  .ef-btn--primary:hover { background: var(--ef-yellow-hot); color: var(--ef-on-accent); box-shadow: var(--ef-glow); }
+  .ef-btn--ghost { border-color: transparent; }
+  .ef-btn--ghost:hover { border-color: transparent; background: color-mix(in srgb, var(--ef-yellow) 8%, transparent); }
+  .ef-btn--danger { border-color: color-mix(in srgb, var(--ef-magenta) 60%, transparent); color: var(--ef-magenta); }
+  .ef-btn--danger:hover { border-color: var(--ef-magenta); color: var(--ef-magenta); background: color-mix(in srgb, var(--ef-magenta) 8%, transparent); }
+  .ef-btn:disabled, .ef-btn[aria-disabled="true"] { opacity: 0.4; pointer-events: none; }
+
+  /* loading — a chamfered box that spins, not a circle */
+  .ef-spinner {
+    width: 0.9rem; height: 0.9rem; flex-shrink: 0;
+    border: var(--ef-bw-2) solid currentColor;
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+    animation: ef-dspin 0.8s linear infinite;
+  }
+
+  /* ── fields ─────────────────────────────────────────────────────────── */
+  .ef-field { display: flex; flex-direction: column; gap: var(--ef-2); }
+  .ef-input, .ef-select, .ef-textarea {
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-13); color: var(--ef-ink);
+    background: var(--ef-well); border: 1px solid var(--ef-line);
+    padding: 0.6rem 0.75rem;
+    transition: border-color var(--ef-dur-1), box-shadow var(--ef-dur-1);
+  }
+  .ef-textarea { resize: vertical; min-height: 4.5rem; font-family: var(--ef-font-body); }
+  .ef-input:focus, .ef-select:focus, .ef-textarea:focus {
+    outline: none; border-color: var(--ef-accent);
+    box-shadow: inset 0 0 0 1px var(--ef-accent), var(--ef-glow-soft);
+  }
+  .ef-input::placeholder { color: var(--ef-ink-4); }
+
+  /* toggle — the thumb is a small chamfered block; spins on switch */
+  .ef-toggle { position: relative; display: inline-block; width: 2.7rem; height: 1.35rem; flex-shrink: 0; }
+  .ef-toggle input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .ef-toggle > span { position: absolute; inset: 0; background: var(--ef-well); border: 1px solid var(--ef-line); transition: background var(--ef-dur-2) var(--ef-ease), border-color var(--ef-dur-2); }
+  .ef-toggle > span::before {
+    content: ""; position: absolute; width: 0.85rem; height: 0.85rem; left: 3px; top: 50%;
+    transform: translateY(-50%) rotate(0deg); background: var(--ef-ink-3);
+    clip-path: polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px));
+    transition: transform var(--ef-dur-2) var(--ef-ease), background var(--ef-dur-2);
+  }
+  .ef-toggle input:checked + span { background: var(--ef-marker); border-color: var(--ef-marker); }
+  .ef-toggle input:checked + span::before { transform: translate(1.35rem, -50%) rotate(90deg); background: #0F0F10; }
+  .ef-toggle input:focus-visible + span { outline: 2px solid var(--ef-accent); outline-offset: 2px; }
+
+  /* range */
+  .ef-range { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: var(--ef-line); cursor: pointer; }
+  .ef-range::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 16px; background: var(--ef-marker); box-shadow: var(--ef-glow); clip-path: polygon(50% 0, 100% 30%, 100% 100%, 0 100%, 0 30%); }
+  .ef-range::-moz-range-thumb { width: 12px; height: 16px; border: 0; background: var(--ef-marker); box-shadow: var(--ef-glow); }
+  .ef-range:focus-visible { outline: 2px solid var(--ef-accent); outline-offset: 5px; }
+
+  /* checkbox = diamond; radio = diamond too, per the game */
+  .ef-check { display: inline-flex; align-items: center; gap: var(--ef-2); font-family: var(--ef-font-mono); font-size: var(--ef-t-12); color: var(--ef-ink-2); cursor: pointer; }
+  .ef-check input { appearance: none; -webkit-appearance: none; width: 0.85rem; height: 0.85rem; border: var(--ef-bw-2) solid var(--ef-line-2); transform: rotate(45deg); cursor: pointer; transition: background var(--ef-dur-1), border-color var(--ef-dur-1); }
+  .ef-check input:checked { background: var(--ef-marker); border-color: var(--ef-marker); box-shadow: var(--ef-glow); }
+  .ef-check input:focus-visible { outline: 2px solid var(--ef-accent); outline-offset: 3px; }
+
+  /* ── status pill ────────────────────────────────────────────────────── */
+  .ef-pill {
+    display: inline-flex; align-items: center; gap: var(--ef-2);
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-11); letter-spacing: 0.08em; text-transform: uppercase;
+    background: transparent; border: 1px solid var(--ef-line);
+    padding: 0.28rem 0.7rem; color: var(--ef-ink-2);
+  }
+  .ef-pill .ef-diamond { width: 0.42rem; height: 0.42rem; border-width: 0; background: var(--ef-ok); box-shadow: 0 0 6px var(--ef-ok); }
+  .ef-pill[data-state="warn"] .ef-diamond { background: var(--ef-warn); box-shadow: 0 0 6px var(--ef-warn); }
+  .ef-pill[data-state="crit"] .ef-diamond { background: var(--ef-crit); box-shadow: 0 0 6px var(--ef-crit); }
+
+  /* ── badge / tag ────────────────────────────────────────────────────── */
+  .ef-badge {
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-11); font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; padding: 0.12rem 0.42rem;
+    border: 1px solid currentColor;
+  }
+  .ef-badge--ok   { color: var(--ef-ok); }
+  .ef-badge--warn { color: var(--ef-accent-ink); border-color: var(--ef-yellow); }
+  .ef-badge--crit { color: var(--ef-crit); }
+  .ef-tag { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); color: var(--ef-ink-3); background: var(--ef-well); border: 1px solid var(--ef-line); padding: 0.18rem 0.5rem; }
+
+  /* ── category banner (key-art motif) ───────────────────────────────── */
+  .ef-banner {
+    display: inline-flex; align-items: center; gap: var(--ef-2);
+    font-family: var(--ef-font-display); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+    color: #fff; background: var(--ef-crimson);
+    padding: 0.28rem 1.1rem 0.28rem 0.7rem;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 0.7rem) 100%, 0 100%);
+  }
+  .ef-banner::before { content: "▽"; font-size: 0.7em; opacity: 0.85; }
+  .ef-banner .ef-slash { font-family: var(--ef-font-mono); opacity: 0.55; }
+
+  /* ── table ─────────────────────────────────────────────────────────── */
+  .ef-table-wrap { overflow-x: auto; border: 1px solid var(--ef-line); }
+  .ef-table { width: 100%; border-collapse: collapse; font-size: var(--ef-t-13); }
+  .ef-table th {
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-11); font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; text-align: left; color: var(--ef-ink-2);
+    background: var(--ef-surface-2); padding: 0.55rem 0.85rem; border-bottom: 1px solid var(--ef-line);
+  }
+  .ef-table td { padding: 0.55rem 0.85rem; border-bottom: 1px solid var(--ef-line); color: var(--ef-ink-2); font-variant-numeric: tabular-nums; }
+  .ef-table tbody tr:last-child td { border-bottom: 0; }
+  .ef-table tbody tr:hover td { background: color-mix(in srgb, var(--ef-yellow) 4%, transparent); color: var(--ef-ink); }
+
+  /* ── log rows ──────────────────────────────────────────────────────── */
+  .ef-log { display: flex; flex-direction: column; font-family: var(--ef-font-mono); font-size: var(--ef-t-12); }
+  .ef-log__row {
+    display: grid; grid-template-columns: auto auto 1fr; gap: var(--ef-3);
+    padding: 0.45rem 0.75rem; color: var(--ef-ink-2);
+    border-left: var(--ef-rail) solid var(--ef-line); border-bottom: 1px solid var(--ef-line);
+  }
+  .ef-log__row:last-child { border-bottom: 0; }
+  .ef-log__row[data-level="ok"]   { border-left-color: var(--ef-ok); }
+  .ef-log__row[data-level="warn"] { border-left-color: var(--ef-warn); }
+  .ef-log__row[data-level="crit"] { border-left-color: var(--ef-crit); }
+  .ef-log__ts  { color: var(--ef-ink-4); }
+  .ef-log__tag { color: var(--ef-accent-ink); }
+
+  /* ── progress + meter ──────────────────────────────────────────────── */
+  .ef-progress { display: flex; flex-direction: column; gap: var(--ef-2); }
+  .ef-progress__head { display: flex; justify-content: space-between; }
+  .ef-progress__track { height: 6px; background: var(--ef-well); border: 1px solid var(--ef-line); overflow: hidden; }
+  .ef-progress__fill { height: 100%; background: var(--ef-marker); transition: width var(--ef-dur-3) var(--ef-ease-out); }
+
+  .ef-meter { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; height: 1.2rem; }
+  .ef-meter__seg { background: var(--ef-line); }
+  .ef-meter__seg[data-on] { background: var(--ef-marker); }
+  .ef-meter__seg[data-on][data-hot] { background: var(--ef-magenta); }
+
+  /* ── stat ─────────────────────────────────────────────────────────── */
+  .ef-stat { display: flex; flex-direction: column; gap: 0.1rem; }
+  .ef-stat__num { font-family: var(--ef-font-mono); font-weight: 700; font-size: var(--ef-t-34); line-height: 1; color: var(--ef-accent-ink); font-variant-numeric: tabular-nums; }
+  .ef-stat__num--cyan { color: var(--ef-cyan); }
+  .ef-stat__unit { font-size: 0.5em; color: var(--ef-ink-3); }
+
+  /* ── tabs — underline ─────────────────────────────────────────────── */
+  .ef-tabs { display: flex; border-bottom: 1px solid var(--ef-line); }
+  .ef-tab {
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-12); font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 0.55rem 1rem; color: var(--ef-ink-3);
+    background: none; border: 0; border-bottom: var(--ef-bw-2) solid transparent; cursor: pointer; margin-bottom: -1px;
+    transition: color var(--ef-dur-1), border-color var(--ef-dur-1);
+  }
+  .ef-tab:hover { color: var(--ef-ink); }
+  .ef-tab[aria-selected="true"] { color: var(--ef-accent-ink); border-bottom-color: var(--ef-accent); }
+
+  /* ── callout ─────────────────────────────────────────────────────── */
+  .ef-callout {
+    display: flex; flex-direction: column; gap: var(--ef-2);
+    padding: var(--ef-3) var(--ef-4);
+    border: 1px solid var(--ef-line); border-left: var(--ef-rail) solid var(--ef-ink-3);
+    background: var(--ef-surface-2);
+  }
+  .ef-callout--do   { border-left-color: var(--ef-ok); }
+  .ef-callout--dont { border-left-color: var(--ef-crit); }
+  .ef-callout__label { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ef-ink-3); }
+
+  /* ── modal ───────────────────────────────────────────────────────── */
+  .ef-modal-demo { position: relative; height: 15rem; background: var(--ef-well); border: 1px solid var(--ef-line); overflow: hidden; display: grid; place-items: center; }
+  .ef-modal { width: min(24rem, 88%); background: var(--ef-surface); border: 1px solid var(--ef-accent); clip-path: var(--ef-chamfer); box-shadow: var(--ef-glow-soft); }
+  .ef-modal__head { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 1rem; background: var(--ef-ground); border-bottom: 1px solid var(--ef-line); }
+  .ef-modal__head h4 { font-family: var(--ef-font-mono); font-size: var(--ef-t-12); color: var(--ef-accent-ink); }
+  .ef-modal__body { padding: 1rem; font-size: var(--ef-t-13); color: var(--ef-ink-2); }
+
+  /* ── tooltip ─────────────────────────────────────────────────────── */
+  .ef-tip { position: relative; border-bottom: 1px dashed var(--ef-ink-3); cursor: help; }
+  .ef-tip::after {
+    content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-11); white-space: nowrap;
+    background: var(--ef-ground); color: var(--ef-ink); border: 1px solid var(--ef-accent);
+    padding: 0.28rem 0.55rem; opacity: 0; pointer-events: none; transition: opacity var(--ef-dur-1);
+  }
+  .ef-tip:hover::after, .ef-tip:focus::after { opacity: 1; }
+
+  /* kbd + code */
+  kbd.ef-kbd { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom-width: 2px; padding: 0.08rem 0.38rem; color: var(--ef-ink-2); }
+  .ef-code {
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-12); line-height: 1.75;
+    background: var(--ef-well); border: 1px solid var(--ef-line); border-left: var(--ef-bw-2) solid var(--ef-accent);
+    padding: var(--ef-4); overflow-x: auto; color: var(--ef-ink-2); white-space: pre;
+  }
+  .ef-code .c { color: var(--ef-ink-4); }
+  .ef-code .k { color: var(--ef-magenta); }
+  .ef-code .v { color: var(--ef-cyan); }
+  .ef-code .p { color: var(--ef-accent-ink); }
+}
+
+/* ═══ @layer utilities ═══════════════════════════════════════════════════ */
+@layer utilities {
+  .ef-mono { font-family: var(--ef-font-mono); }
+  .ef-up   { text-transform: uppercase; letter-spacing: var(--ef-track-label); }
+  .ef-nums { font-variant-numeric: tabular-nums; }
+  .ef-accent-c { color: var(--ef-accent-ink); }
+  .ef-cyan-c   { color: var(--ef-cyan); }
+  .ef-mag-c    { color: var(--ef-magenta); }
+  .ef-dim      { color: var(--ef-ink-3); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   v1.1 · GAME BACKPORT — marks + components seen across the full g01–g77
+   screenshot tour that v1.0 didn't carry. Same layers, same tokens.
+   Reference: GAME-UI-NOTES.md · RESEARCH.md (pattern → class map)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer motif {
+  /* registration crosshair — a survey "+". Pair with an .ef-micro code label. */
+  .ef-reg { position: relative; display: inline-block; width: 0.75rem; height: 0.75rem; flex-shrink: 0; color: var(--ef-ink-4); }
+  .ef-reg::before, .ef-reg::after { content: ""; position: absolute; background: currentColor; }
+  .ef-reg::before { left: 50%; top: 0; bottom: 0; width: 1px; margin-left: -0.5px; }
+  .ef-reg::after  { top: 50%; left: 0; right: 0; height: 1px; margin-top: -0.5px; }
+
+  /* four-corner survey frame — like .ef-brackets, but all four corners */
+  .ef-frame { position: relative; }
+  .ef-frame::before {
+    content: ""; position: absolute; inset: -2px; pointer-events: none;
+    --c: var(--ef-bracket-color);
+    background-image:
+      linear-gradient(var(--c) 0 0), linear-gradient(var(--c) 0 0),
+      linear-gradient(var(--c) 0 0), linear-gradient(var(--c) 0 0),
+      linear-gradient(var(--c) 0 0), linear-gradient(var(--c) 0 0),
+      linear-gradient(var(--c) 0 0), linear-gradient(var(--c) 0 0);
+    background-repeat: no-repeat;
+    background-position: 0 0, 0 0, 100% 0, 100% 0, 0 100%, 0 100%, 100% 100%, 100% 100%;
+    background-size: 12px 2px, 2px 12px, 12px 2px, 2px 12px, 12px 2px, 2px 12px, 12px 2px, 2px 12px;
+  }
+
+  /* diagonal hatch — "claimed / done" overlays, blocked buttons, deficit fills.
+     Tints to whatever the element's currentColor is. */
+  .ef-hatch {
+    background-image: repeating-linear-gradient(45deg,
+      transparent 0 5px, color-mix(in srgb, currentColor 22%, transparent) 5px 7px);
+  }
+
+  /* watermark stamp — a big outline word laid diagonally across a card */
+  .ef-stamp {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-family: var(--ef-font-display); font-weight: 700; text-transform: uppercase;
+    font-size: clamp(1.5rem, 7vw, 3rem); letter-spacing: 0.12em;
+    color: transparent; -webkit-text-stroke: 1px var(--ef-ink-4);
+    transform: rotate(-16deg); opacity: 0.55; pointer-events: none; user-select: none;
+  }
+
+  /* faceted frame — an octagon clip for anything that must not be a plain circle
+     (minimap, avatars, skill buttons — a genuine Endfield tell) */
+  .ef-facet { clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
+
+  /* CMYK glitch strip — one per view, max, like the triband */
+  .ef-glitchstrip { height: 4px; background: var(--ef-glitchstrip); }
+  .ef-glitchstrip--v {
+    height: auto; width: 4px; align-self: stretch;   /* needs a flex parent */
+    background: linear-gradient(180deg,
+      var(--ef-cyan) 0 22%, var(--ef-yellow) 22% 50%,
+      var(--ef-crimson) 50% 74%, var(--ef-magenta) 74% 100%);
+  }
+
+  /* vertical dividers — plain, and the red-spine + cyan-hairline split (g19) */
+  .ef-vrule { width: 1px; align-self: stretch; background: var(--ef-line); }
+  .ef-vrule--split { width: var(--ef-bw-2); background: var(--ef-crimson); box-shadow: 1px 0 0 var(--ef-cyan); }
+
+  /* notification square — the tilted orange corner pip on any menu entry */
+  .ef-notif {
+    position: absolute; top: -3px; right: -3px;
+    width: 0.5rem; height: 0.5rem; background: var(--ef-notify);
+    transform: rotate(12deg);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--ef-notify) 55%, transparent);
+  }
+  .ef-notif--inline { position: static; display: inline-block; }
+
+  /* key hint — [E] [TAB] [F10] as a span (kbd.ef-kbd's inline twin) */
+  .ef-key {
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-11);
+    background: var(--ef-surface-2); border: 1px solid var(--ef-line); border-bottom-width: 2px;
+    padding: 0.02rem 0.34rem; color: var(--ef-ink-2);
+  }
+}
+
+@layer components {
+
+  /* ── skewed parallelogram nav — THE Endfield menu list (g13, g20, g59, g74) ──
+     Wrap each item's contents in one element (span) so the counter-shear lands. */
+  .ef-skewnav { display: flex; flex-direction: column; gap: var(--ef-1); }
+  .ef-skewnav--row { flex-direction: row; flex-wrap: wrap; gap: var(--ef-2); }
+  .ef-skewnav__item {
+    display: block; width: 100%; text-align: left; cursor: pointer;
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-12);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ef-ink-2); background: var(--ef-surface);
+    border: 1px solid var(--ef-line); border-left: var(--ef-rail) solid var(--ef-line);
+    padding: 0.6rem 1rem;
+    transform: skewX(var(--ef-skew));
+    transition: color var(--ef-dur-1) var(--ef-ease),
+                border-color var(--ef-dur-1) var(--ef-ease),
+                background var(--ef-dur-1) var(--ef-ease);
+  }
+  .ef-skewnav--row .ef-skewnav__item { width: auto; }
+  .ef-skewnav__item > * { display: inline-block; transform: skewX(calc(-1 * var(--ef-skew))); }
+  .ef-skewnav__item:hover { color: var(--ef-ink); border-left-color: var(--ef-line-2); }
+  .ef-skewnav__item[aria-current="true"],
+  .ef-skewnav__item[data-active] {
+    background: var(--ef-accent); color: var(--ef-on-accent);
+    border-color: var(--ef-accent); font-weight: 700;
+  }
+
+  /* ── vertical rail nav — the un-sheared DOC-mode sidebar (g29, g56, g66, g76) ── */
+  .ef-railnav { display: flex; flex-direction: column; }
+  .ef-railnav__item {
+    display: flex; align-items: center; gap: var(--ef-2);
+    padding: 0.55rem 0.9rem; text-align: left; cursor: pointer;
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-12);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ef-ink-3); background: transparent;
+    border: 0; border-left: var(--ef-rail) solid transparent;
+    transition: color var(--ef-dur-1), border-color var(--ef-dur-1), background var(--ef-dur-1);
+  }
+  .ef-railnav__item:hover { color: var(--ef-ink); }
+  .ef-railnav__item[aria-current="true"] {
+    color: var(--ef-accent-ink); border-left-color: var(--ef-accent);
+    background: color-mix(in srgb, var(--ef-yellow) 7%, transparent);
+  }
+
+  /* ── right-side detail drawer (g06, g09, g10, g12, g19, g52, g77) ─────── */
+  .ef-drawer {
+    display: flex; flex-direction: column;
+    background: var(--ef-surface);
+    border: 1px solid var(--ef-line); border-left: var(--ef-bw-2) solid var(--ef-line-2);
+  }
+  .ef-drawer__head { display: flex; align-items: flex-start; gap: var(--ef-3); padding: var(--ef-4); border-bottom: 1px solid var(--ef-line); }
+  .ef-drawer__title { font-family: var(--ef-font-display); font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; font-size: var(--ef-t-18); }
+  .ef-drawer__sub { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); color: var(--ef-ink-3); text-transform: uppercase; letter-spacing: var(--ef-track-label); }
+  .ef-drawer__body { display: flex; flex-direction: column; gap: var(--ef-3); padding: var(--ef-4); overflow-y: auto; }
+  .ef-drawer__sec { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); font-weight: 700; letter-spacing: var(--ef-track-label); text-transform: uppercase; color: var(--ef-ink-3); }
+  .ef-drawer__foot { margin-top: auto; padding: var(--ef-3) var(--ef-4); border-top: 1px solid var(--ef-line); }
+
+  /* pipe-aligned stat row — "AGILITY            | 179" */
+  .ef-statrow {
+    display: flex; align-items: baseline; justify-content: space-between; gap: var(--ef-3);
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-13);
+    padding: 0.3rem 0; border-bottom: 1px solid var(--ef-line);
+  }
+  .ef-statrow:last-child { border-bottom: 0; }
+  .ef-statrow__k { color: var(--ef-ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .ef-statrow__v { color: var(--ef-ink); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ef-statrow__v::before { content: "| "; color: var(--ef-ink-4); }
+  .ef-statrow--key { background: var(--ef-accent); padding: 0.3rem 0.5rem; border-bottom: 0; }
+  .ef-statrow--key .ef-statrow__k, .ef-statrow--key .ef-statrow__v { color: var(--ef-on-accent); }
+  .ef-statrow--key .ef-statrow__v::before { color: color-mix(in srgb, var(--ef-on-accent) 45%, transparent); }
+
+  /* keyword + delta highlights for drawer / tooltip body copy */
+  .ef-kw    { color: var(--ef-cyan); }
+  .ef-kw--u { color: var(--ef-cyan); text-decoration: underline; text-underline-offset: 2px; }
+  .ef-delta { color: var(--ef-blue); font-variant-numeric: tabular-nums; }
+
+  /* ── state-driven task / quest row (g14, g20, g34, g42, g47) ─────────── */
+  .ef-task {
+    position: relative; display: grid;
+    grid-template-columns: 1fr auto auto; gap: var(--ef-4); align-items: center;
+    padding: var(--ef-3) var(--ef-4);
+    background: var(--ef-surface);
+    border: 1px solid var(--ef-line); border-left: var(--ef-rail) solid var(--ef-line);
+  }
+  .ef-task__title { font-size: var(--ef-t-14); color: var(--ef-ink); }
+  .ef-task__prog { grid-column: 1 / -1; height: 2px; margin-top: var(--ef-1); background: var(--ef-well); }
+  .ef-task__prog i { display: block; height: 100%; background: var(--ef-marker); }
+  .ef-task[data-state="active"] { border-left-color: var(--ef-marker); }
+  .ef-task[data-state="ready"] { background: var(--ef-accent); border-color: var(--ef-accent); }
+  .ef-task[data-state="ready"] .ef-task__title { color: var(--ef-on-accent); font-weight: 700; }
+  .ef-task[data-state="done"] { opacity: 0.5; }
+  .ef-task[data-state="done"] .ef-task__title { text-decoration: line-through; color: var(--ef-ink-3); }
+
+  /* ── diagonal-slash pip bar — "//////// MAX" (g05, g09, g57, g77) ────── */
+  .ef-pips { display: inline-flex; align-items: center; gap: 2px; }
+  .ef-pips__seg { width: 0.42rem; height: 0.85rem; background: var(--ef-line); transform: skewX(-20deg); }
+  .ef-pips__seg[data-on] { background: var(--ef-marker); }
+  .ef-pips__seg[data-on][data-hot] { background: var(--ef-magenta); }
+  .ef-pips__max {
+    margin-left: var(--ef-2); font-family: var(--ef-font-mono);
+    font-size: var(--ef-t-11); font-weight: 700; letter-spacing: 0.08em;
+    color: var(--ef-on-accent); background: var(--ef-accent); padding: 0.02rem 0.3rem;
+  }
+
+  /* ── blocked / deficit button — full width, hatched, "⊘ can't" (g12, g14) ── */
+  .ef-btn--blocked,
+  .ef-btn--blocked:hover {
+    width: 100%; justify-content: center; cursor: not-allowed;
+    color: var(--ef-crimson);
+    border-color: color-mix(in srgb, var(--ef-crimson) 40%, var(--ef-line));
+    background:
+      repeating-linear-gradient(45deg, transparent 0 6px,
+        color-mix(in srgb, var(--ef-crimson) 10%, transparent) 6px 8px),
+      var(--ef-well);
+    box-shadow: none;
+  }
+
+  /* ── radial gauge — 360° ring + centre metric (g23, g24, g73) ──────────
+     Set --ef-gauge-v 0-100. The ring is a fixed 8px so the centre always
+     clears the label; drop it in an align-items:center flex/grid cell. */
+  .ef-gauge {
+    position: relative; display: grid; place-content: center; place-items: center;
+    flex-shrink: 0; width: 5.25rem; aspect-ratio: 1; line-height: 1;
+    font-family: var(--ef-font-mono); text-align: center;
+  }
+  .ef-gauge::before {
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(var(--ef-marker) calc(var(--ef-gauge-v, 0) * 1%), var(--ef-line) 0);
+    -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 8px), #000 calc(100% - 7px));
+            mask: radial-gradient(farthest-side, #0000 calc(100% - 8px), #000 calc(100% - 7px));
+  }
+  .ef-gauge__v { position: relative; font-weight: 700; font-size: var(--ef-t-18); line-height: 1; color: var(--ef-accent-ink); font-variant-numeric: tabular-nums; }
+  .ef-gauge__l { position: relative; margin-top: 3px; font-size: 0.5rem; letter-spacing: 0.08em; color: var(--ef-ink-3); text-transform: uppercase; }
+
+  /* ── vertical spine rail — gear slots, node lists (g10) ─────────────── */
+  .ef-spine { position: relative; display: flex; flex-direction: column; gap: var(--ef-2); padding-left: var(--ef-4); }
+  .ef-spine::before { content: ""; position: absolute; left: 4px; top: 4px; bottom: 4px; width: 1px; background: var(--ef-line); }
+  .ef-spine__node { position: relative; }
+  .ef-spine__node::before { content: ""; position: absolute; left: -15px; top: 0.55rem; width: 6px; height: 6px; background: var(--ef-line); transform: rotate(45deg); }
+  .ef-spine__node[data-active]::before { background: var(--ef-marker); box-shadow: var(--ef-glow); }
+
+  /* ── ID card — yellow header tab + name + body (g11, g49, the key-art made UI) ── */
+  .ef-idcard { background: var(--ef-surface); border: 1px solid var(--ef-line); clip-path: var(--ef-chamfer); overflow: hidden; }
+  .ef-idcard__tab {
+    display: inline-block; background: var(--ef-accent); color: var(--ef-on-accent);
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-11); font-weight: 700;
+    letter-spacing: var(--ef-track-label); text-transform: uppercase; padding: 0.16rem 0.7rem;
+  }
+  .ef-idcard__name { font-family: var(--ef-font-display); font-weight: 700; text-transform: uppercase; font-size: var(--ef-t-26); padding: var(--ef-2) var(--ef-4) 0; }
+  .ef-idcard__body { padding: var(--ef-3) var(--ef-4) var(--ef-4); display: flex; flex-direction: column; gap: var(--ef-2); }
+
+  /* ── yellow structural slab — the primary info / action zone (g04, g74) ── */
+  .ef-slab {
+    position: relative; overflow: hidden;
+    background: var(--ef-accent); color: var(--ef-on-accent);
+    padding: var(--ef-4) var(--ef-5);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  }
+  .ef-slab__wm {
+    position: absolute; right: 0.5rem; bottom: -0.4rem; pointer-events: none;
+    font-family: var(--ef-font-display); font-weight: 700; text-transform: uppercase;
+    font-size: clamp(1.8rem, 6vw, 3rem); letter-spacing: 0.1em;
+    color: color-mix(in srgb, var(--ef-on-accent) 12%, transparent);
+  }
+
+  /* ── currency chip — icon · number · [＋] in a hex frame ─────────────── */
+  .ef-currency {
+    display: inline-flex; align-items: center; gap: var(--ef-2);
+    font-family: var(--ef-font-mono); font-variant-numeric: tabular-nums;
+    font-size: var(--ef-t-12); color: var(--ef-ink-2);
+    border: 1px solid var(--ef-line); padding: 0.16rem 0.16rem 0.16rem 0.55rem;
+  }
+  .ef-currency__add {
+    display: grid; place-items: center; width: 1.1rem; height: 1.1rem;
+    color: var(--ef-accent-ink); background: var(--ef-surface-2); border: 1px solid var(--ef-line);
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  }
+
+  /* ── rarity spine — bottom-border tier on an item tile (g52, g77) ────── */
+  .ef-rarity { border-bottom: var(--ef-bw-2) solid var(--ef-rarity-3); }
+  .ef-rarity[data-tier="1"] { border-bottom-color: var(--ef-rarity-1); }
+  .ef-rarity[data-tier="2"] { border-bottom-color: var(--ef-rarity-2); }
+  .ef-rarity[data-tier="3"] { border-bottom-color: var(--ef-rarity-3); }
+  .ef-rarity[data-tier="4"] { border-bottom-color: var(--ef-rarity-4); }
+  .ef-rarity[data-tier="5"] { border-bottom-color: var(--ef-rarity-5); }
+  .ef-rarity[data-tier="6"] { border-bottom-color: var(--ef-rarity-6); box-shadow: 0 3px 10px -4px var(--ef-rarity-6); }
+
+  /* ── split-tone modal — dark context header / light action body (g69, g73) ── */
+  .ef-modal--split .ef-modal__head { background: var(--ef-surface-2); border-bottom-color: var(--ef-line-2); }
+
+  /* a hard-light plane. Re-scope the DOC palette locally so nested components
+     (buttons, strong, labels) stay legible on it regardless of the page theme. */
+  .ef-modal__body--doc, .ef-tipcard__doc {
+    --ef-ground: #F5F5F2; --ef-surface: #FFFFFF; --ef-surface-2: #ECECE8;
+    --ef-well: #E4E4DF; --ef-line: #C7C9CF; --ef-line-2: #9A9CA3;
+    --ef-ink: #17181A; --ef-ink-2: #3B3D43; --ef-ink-3: #55575F; --ef-ink-4: #8A8D95;
+    --ef-accent-ink: #141519; --ef-marker: #7A6D00; --ef-link: #185FA0;
+    background: var(--ef-ground); color: var(--ef-ink);
+  }
+
+  /* ── hybrid tooltip card — yellow head · dark meta · doc body · stats (g58) ── */
+  .ef-tipcard { width: min(20rem, 92%); background: var(--ef-surface); border: 1px solid var(--ef-line); clip-path: var(--ef-chamfer); overflow: hidden; }
+  .ef-tipcard__hd {
+    background: var(--ef-accent); color: var(--ef-on-accent);
+    font-family: var(--ef-font-display); font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.03em; padding: 0.4rem 0.8rem;
+  }
+  .ef-tipcard__meta { display: flex; align-items: center; gap: var(--ef-2); padding: var(--ef-3); border-bottom: 1px solid var(--ef-line); }
+  .ef-tipcard__doc { padding: var(--ef-3); font-size: var(--ef-t-13); }
+  .ef-tipcard__stats { padding: var(--ef-3); display: flex; flex-direction: column; gap: var(--ef-2); }
+
+  /* ── DOC-mode report row — dark name chip + live area chart (g70, g71) ──
+     Drop an inline <svg> into .ef-report__fig; fill areas with the --ef-data-* tokens. */
+  .ef-report { display: flex; flex-direction: column; border: 1px solid var(--ef-line); }
+  .ef-report__row { display: grid; grid-template-columns: 12rem 1fr auto; gap: var(--ef-4); align-items: center; padding: var(--ef-2) var(--ef-3); border-bottom: 1px solid var(--ef-line); }
+  .ef-report__row:last-child { border-bottom: 0; }
+  .ef-report__name {
+    display: flex; align-items: center; gap: var(--ef-2);
+    background: #1E2024; color: #F0F0F2;
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-12);
+    padding: 0.3rem 0.5rem; border-left: var(--ef-rail) solid var(--ef-line-2);
+  }
+  .ef-report__fig { min-width: 0; }
+  .ef-report__data { font-family: var(--ef-font-mono); font-size: var(--ef-t-12); text-align: right; color: var(--ef-ink-2); font-variant-numeric: tabular-nums; }
+  .ef-report__data .over { color: var(--ef-data-deficit); font-weight: 700; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   @layer page — this reference document only
+   ═══════════════════════════════════════════════════════════════════════════ */
+@layer page {
+  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { overflow-x: hidden; }
+
+  #atmos { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  #atmos > * { position: absolute; inset: 0; }
+
+  /* topographic survey lines — generative canvas */
+  #contour { width: 100%; height: 100%; opacity: 0.9; }
+
+  /* dot-matrix grid, faded top + bottom */
+  #atmos .a-dots {
+    background-image: radial-gradient(var(--ef-line-2) 1px, transparent 1.4px);
+    background-size: 26px 26px;
+    opacity: 0.22;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent);
+            mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent);
+  }
+  /* fine horizontal scanlines */
+  #atmos .a-scan {
+    background-image: repeating-linear-gradient(0deg, transparent 0 2px, rgba(255,255,255,0.018) 2px 3px);
+    opacity: 0.6;
+  }
+  /* a yellow breath at the top — the promo-site glow */
+  #atmos .a-glow {
+    background: radial-gradient(ellipse 70% 42% at 50% -6%,
+      color-mix(in srgb, var(--ef-yellow) 8%, transparent), transparent 70%);
+  }
+  /* edge vignette, keeps focus centre */
+  #atmos .a-vig {
+    background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,0.55));
+  }
+  /* one slow scan sweep */
+  #atmos .a-sweep {
+    height: 40vh; inset: -40vh 0 auto 0;
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--ef-cyan) 5%, transparent) 60%, transparent);
+    animation: a-sweep 14s var(--ef-ease-out) infinite;
+  }
+  @keyframes a-sweep { 0% { transform: translateY(0); } 100% { transform: translateY(180vh); } }
+  @media (prefers-reduced-motion: reduce) { #atmos .a-sweep { display: none; } }
+  :root[data-theme="light"] #atmos .a-scan,
+  :root[data-theme="light"] #atmos .a-vig,
+  :root[data-theme="light"] #atmos .a-glow { opacity: 0.35; }
+  :root[data-theme="light"] #contour { opacity: 0.45; }
+
+  .vp-bracket { position: fixed; width: 20px; height: 20px; border: 2px solid color-mix(in srgb, var(--ef-yellow) 40%, transparent); z-index: 40; pointer-events: none; }
+  .vp-bracket.tl { top: 12px; left: 12px; border-right: 0; border-bottom: 0; }
+  .vp-bracket.tr { top: 12px; right: 12px; border-left: 0; border-bottom: 0; }
+  .vp-bracket.bl { bottom: 34px; left: 12px; border-right: 0; border-top: 0; }
+  .vp-bracket.br { bottom: 34px; right: 12px; border-left: 0; border-top: 0; }
+
+  #top {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--ef-ground) 90%, transparent);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--ef-line);
+  }
+  #top .bar { display: flex; align-items: center; gap: var(--ef-4); max-width: 1120px; margin: 0 auto; padding: 0.65rem 1.5rem; }
+  #top .mark {
+    font-family: var(--ef-font-display); font-weight: 700; font-size: var(--ef-t-16);
+    text-transform: uppercase; letter-spacing: 0.22em; padding-left: 0.22em;
+    color: var(--ef-ink);
+    border: 1px solid var(--ef-line); padding: 0.2rem 0.6rem 0.2rem 0.82rem;
+    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+  }
+  #top .kick { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ef-ink-3); }
+  @media (max-width: 780px) { #top .kick { display: none; } }
+  #top .sp { flex: 1; }
+  #top .clock { font-family: var(--ef-font-mono); font-size: var(--ef-t-13); font-weight: 700; color: var(--ef-accent-ink); font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+  @media (max-width: 540px) { #top .clock { display: none; } }
+  #themeToggle {
+    font-family: var(--ef-font-mono); font-size: var(--ef-t-11); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    background: transparent; color: var(--ef-ink-2); border: 1px solid var(--ef-line); padding: 0.32rem 0.7rem; cursor: pointer;
+    transition: border-color var(--ef-dur-1), color var(--ef-dur-1);
+  }
+  #themeToggle:hover { border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+
+  #boot {
+    position: fixed; inset: 0; z-index: 200; background: var(--ef-ground);
+    display: grid; place-content: center; justify-items: center; gap: 0.9rem;
+    font-family: var(--ef-font-mono); transition: opacity 0.6s var(--ef-ease-out), visibility 0.6s;
+  }
+  #boot.done { opacity: 0; visibility: hidden; }
+  #boot .bm { font-family: var(--ef-font-display); font-weight: 700; font-size: var(--ef-t-46); letter-spacing: 0.34em; padding-left: 0.34em; color: var(--ef-ink); }
+  #boot .bl { font-size: var(--ef-t-12); color: var(--ef-accent-ink); letter-spacing: 0.14em; min-height: 1.2em; }
+  #boot .bs { font-size: var(--ef-t-11); color: var(--ef-ink-4); letter-spacing: 0.1em; }
+  #boot .bt { width: 260px; height: 3px; margin-top: 0.4rem; background: var(--ef-line); overflow: hidden; }
+  #boot .bt i { display: block; height: 100%; width: 0; background: var(--ef-triband); }
+  #boot.run .bt i { animation: b-load 1.5s var(--ef-ease) forwards; }
+  @keyframes b-load { 0%{width:0} 50%{width:42%} 78%{width:80%} 100%{width:100%} }
+
+  main { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: var(--ef-8) 1.5rem var(--ef-9); }
+  section.sec { padding-block: var(--ef-7); scroll-margin-top: 5rem; }
+  .sec > .body { margin-top: var(--ef-5); display: flex; flex-direction: column; gap: var(--ef-5); }
+  .lede { font-size: var(--ef-t-18); color: var(--ef-ink-2); line-height: 1.62; max-width: 60ch; }
+
+  /* content is always visible with or without JS. .in just plays a one-time
+     entrance when the section scrolls into view — it never gates visibility. */
+  .reveal { opacity: 1; }
+  .reveal.armed { opacity: 0; transform: translateY(8px); }
+  .reveal.armed.in {
+    opacity: 1; transform: none;
+    transition: opacity 0.5s var(--ef-ease-out), transform 0.5s var(--ef-ease-out);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal.armed { opacity: 1 !important; transform: none !important; }
+  }
+
+  .grid { display: grid; gap: var(--ef-3); }
+  .grid.c2 { grid-template-columns: repeat(2, 1fr); }
+  .grid.c3 { grid-template-columns: repeat(3, 1fr); }
+  .grid.c4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 760px) { .grid.c2, .grid.c3, .grid.c4 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 470px) { .grid.c2, .grid.c3, .grid.c4 { grid-template-columns: 1fr; } }
+
+  .demo { background: var(--ef-surface); border: 1px solid var(--ef-line); padding: var(--ef-5); }
+  .demo-row { display: flex; flex-wrap: wrap; gap: var(--ef-3); align-items: center; }
+  .spec { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); color: var(--ef-ink-3); margin-top: var(--ef-3); }
+  .spec b { color: var(--ef-accent-ink); font-weight: 500; }
+
+  .swatch { border: 1px solid var(--ef-line); }
+  .swatch .chip { height: 4rem; }
+  .swatch .meta { padding: 0.45rem 0.6rem; background: var(--ef-surface); display: flex; flex-direction: column; gap: 0.05rem; }
+  .swatch .name { font-family: var(--ef-font-mono); font-size: var(--ef-t-12); color: var(--ef-ink); }
+  .swatch .hex  { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); color: var(--ef-ink-3); text-transform: uppercase; }
+
+  .tile { height: 7rem; border: 1px solid var(--ef-line); position: relative; background: var(--ef-well); overflow: hidden; }
+  .tile span { position: absolute; left: 8px; bottom: 6px; font-family: var(--ef-font-mono); font-size: var(--ef-t-11); color: var(--ef-ink-3); background: color-mix(in srgb, var(--ef-ground) 80%, transparent); padding: 0.06rem 0.32rem; }
+
+  .type-spec { display: flex; flex-direction: column; gap: 0.25rem; padding-block: var(--ef-3); border-bottom: 1px solid var(--ef-line); }
+  .type-spec:last-child { border-bottom: 0; }
+  .type-spec .tn { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); color: var(--ef-ink-3); }
+
+  nav.toc { display: flex; flex-wrap: wrap; gap: var(--ef-2); margin-top: var(--ef-5); }
+  nav.toc a { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); text-transform: uppercase; letter-spacing: 0.05em; color: var(--ef-ink-3); border: 1px solid var(--ef-line); padding: 0.28rem 0.55rem; }
+  nav.toc a:hover { border-color: var(--ef-accent); color: var(--ef-accent-ink); }
+
+  #strip {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; height: 22px; overflow: hidden;
+    background: var(--ef-ground); border-top: 1px solid var(--ef-line); display: flex; align-items: center;
+  }
+  #strip .run { display: flex; white-space: nowrap; animation: ef-scan 44s linear infinite; }
+  #strip .run span { font-family: var(--ef-font-mono); font-size: var(--ef-t-11); color: var(--ef-ink-4); padding: 0 1.4rem; letter-spacing: 0.08em; }
+  #strip .run span b { color: var(--ef-ink-3); font-weight: 400; }
+  @media (prefers-reduced-motion: reduce) { #strip .run { animation: none; } }
+
+  footer { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: var(--ef-6) 1.5rem calc(var(--ef-8) + 22px); border-top: 1px solid var(--ef-line); color: var(--ef-ink-3); font-family: var(--ef-font-mono); font-size: var(--ef-t-12); }
+
+  .hero { padding-block: var(--ef-6) var(--ef-5); }
+  .hero .hk { font-family: var(--ef-font-mono); font-size: var(--ef-t-12); letter-spacing: 0.18em; text-transform: uppercase; color: var(--ef-accent-ink); margin-bottom: var(--ef-5); }
+  .hero h1 { margin-bottom: var(--ef-4); }
+
+  .ratio { display: flex; height: 2.2rem; border: 1px solid var(--ef-line); overflow: hidden; font-family: var(--ef-font-mono); font-size: var(--ef-t-11); color: #0F0F10; }
+  .ratio i { display: grid; place-items: center; }
+  .ratio .y { flex: 3; background: var(--ef-yellow); }
+  .ratio .c { flex: 1; background: var(--ef-cyan); }
+  .ratio .m { flex: 1; background: var(--ef-magenta); }
+}
+
+/* ── UNLAYERED — the host wraps this file in an off-white reset whose bare
+   element rules (body background/font, color-scheme) are UNLAYERED and would
+   otherwise beat everything in @layer base. Re-assert the essentials here so
+   they win regardless of the wrapper. ─────────────────────────────────────── */
+:root { color-scheme: dark; --ef-ground: #0F0F10; }
+:root[data-theme="light"] { color-scheme: light; --ef-ground: #F6F6F3; }
+html { background: #0F0F10; }
+html[data-theme="light"] { background: #F6F6F3; }
+body {
+  background: var(--ef-ground);
+  color: var(--ef-ink, #F0F0F2);
+  font-family: "Jost", "Century Gothic", system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.62;
+  min-height: 100vh;
+  margin: 0;
+}
+</style>
+
+<!-- ═══════ BOOT ═══════ -->
+<div id="boot" class="run">
+  <div class="bm ef-echo" data-text="ENDFIELD" id="bootMark">ENDFIELD</div>
+  <div class="bl" id="bootLine">&nbsp;</div>
+  <div class="bs">OVER THE FRONTIER, INTO THE FRONT</div>
+  <div class="bt"><i></i></div>
+</div>
+
+<!-- ═══════ ATMOSPHERE ═══════ -->
+<div id="atmos" aria-hidden="true">
+  <canvas id="contour"></canvas>
+  <div class="a-dots"></div>
+  <div class="a-scan"></div>
+  <div class="a-glow"></div>
+  <div class="a-sweep"></div>
+  <div class="a-vig"></div>
+</div>
+<div class="vp-bracket tl" aria-hidden="true"></div>
+<div class="vp-bracket tr" aria-hidden="true"></div>
+<div class="vp-bracket bl" aria-hidden="true"></div>
+<div class="vp-bracket br" aria-hidden="true"></div>
+
+<!-- ═══════ HEADER ═══════ -->
+<header id="top">
+  <div class="bar">
+    <span class="mark">Endfield</span>
+    <span class="kick">clockmost // design authority</span>
+    <span class="sp"></span>
+    <span class="ef-pill" data-state="ok"><span class="ef-diamond"></span> System nominal</span>
+    <span class="clock" id="clock">--:--:--</span>
+    <button id="themeToggle" type="button" aria-label="Switch HUD / DOC surface">HUD</button>
+  </div>
+  <div class="ef-rule--tri" style="height:2px" aria-hidden="true"></div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <p class="hk">// Visual language · v1.1 · rebuilt from the interface</p>
+    <h1><span class="ef-echo" data-text="ENDFIELD" id="heroEcho">Endfield</span> Design System</h1>
+    <p class="lede">The look for everything clockmost builds next — the dashboards, the phone launcher, the reports. Not a copy of the promo site; a study of the <strong>game's</strong> interface: a near-black ground, hairline outlines with two corners cut away, the diamond as the marker, one industrial yellow doing the structural work, and the magenta&nbsp;/&nbsp;cyan&nbsp;/&nbsp;yellow triband reserved for one signature moment. Restraint is the point. This page is the reference and <code>endfield.css</code> in one file.</p>
+    <nav class="toc" aria-label="Sections">
+      <a href="#s0">00 · Overview</a><a href="#s1">01 · Color</a><a href="#s2">02 · Type</a>
+      <a href="#s3">03 · Structure</a><a href="#s4">04 · Marks</a><a href="#s5">05 · Surface</a>
+      <a href="#s6">06 · Controls</a><a href="#s7">07 · Data</a><a href="#s8">08 · Overlays</a>
+      <a href="#s9">09 · Chrome</a><a href="#s10">10 · Motion</a><a href="#s11">11 · Voice</a>
+      <a href="#s12">12 · Use</a><a href="#s13">13 · Patterns</a>
+    </nav>
+  </div>
+
+  <!-- 00 -->
+  <section class="sec" id="s0">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.00</span><h2>Overview</h2></div>
+    <div class="body reveal">
+      <p class="lede">Endfield's HUD reads like field equipment — a survey rig, a factory console. Thin lines, lots of black, and every mark looks like it reports a value. Four rules carry it.</p>
+      <div class="grid c2">
+        <div class="ef-card ef-brackets"><div class="ef-card__head"><span class="ef-diamond" data-active></span><h3 class="ef-card__title">Restraint first</h3></div><p>Hairline outlines, not filled boxes. Negative space over decoration. One filled element per group — the primary action. The promo website is louder because it's marketing; the game itself is quiet.</p></div>
+        <div class="ef-card ef-brackets"><div class="ef-card__head"><span class="ef-diamond" data-active></span><h3 class="ef-card__title">Yellow is structure</h3></div><p>The one accent — <code>#FFFA00</code> — behaves like safety-yellow on a machine: a frame, a rail, a platform edge, the active state. It is rarely the fill of a button and never body text.</p></div>
+        <div class="ef-card ef-brackets"><div class="ef-card__head"><span class="ef-diamond" data-active></span><h3 class="ef-card__title">Cut, don't round</h3></div><p>Radius 0. The character comes from a chamfer that removes the <em>top-right and bottom-left</em> corners of panels, cards and buttons. Corner brackets frame anything in focus. The diamond ◇ is the marker.</p></div>
+        <div class="ef-card ef-brackets"><div class="ef-card__head"><span class="ef-diamond" data-active></span><h3 class="ef-card__title">Two surfaces</h3></div><p><strong>HUD</strong> — the dark operating plane for tools and dashboards. <strong>DOC</strong> — the light paper plane for reports (used on official operator art). Same tokens, swapped values. Toggle in the header.</p></div>
+      </div>
+      <div>
+        <p class="ef-label" style="margin-bottom:var(--ef-2)">The 3 : 1 : 1 ratio</p>
+        <div class="ratio"><i class="y">YELLOW · 3</i><i class="c">CYAN · 1</i><i class="m">MAGENTA · 1</i></div>
+        <p class="spec">Yellow does the structural work. Cyan means a healthy reading. Magenta means look here. If a screen looks evenly tri-coloured it is wrong — that mix is the <b>triband</b>, a brand mark used once per view.</p>
+      </div>
+      <div class="ef-well ef-mono" style="font-size:var(--ef-t-12); color:var(--ef-ink-2)">SOURCE // the in-game HUD (identity-verify screen), the official <b class="ef-accent-c">gryphline.com</b> stylesheets (9 bundles), the <b class="ef-accent-c">touying-endfield</b> theme, and a study of the community <b class="ef-accent-c">ReEnd</b> component system. Not affiliated with Hypergryph.</div>
+    </div>
+  </section>
+
+  <!-- 01 -->
+  <section class="sec" id="s1">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.01</span><h2>Color</h2></div>
+    <div class="body reveal">
+      <p>Every value is a token — style through it, never the literal. That is what keeps HUD and DOC in step.</p>
+      <h4>Ground &amp; steel — HUD</h4>
+      <div class="grid c4">
+        <div class="swatch"><div class="chip" style="background:#0F0F10"></div><div class="meta"><span class="name">--ef-ground</span><span class="hex">#0F0F10</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#17181A"></div><div class="meta"><span class="name">--ef-surface</span><span class="hex">#17181A</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#1E2024"></div><div class="meta"><span class="name">--ef-surface-2</span><span class="hex">#1E2024</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#0A0A0B"></div><div class="meta"><span class="name">--ef-well</span><span class="hex">#0A0A0B</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#33363C"></div><div class="meta"><span class="name">--ef-line · steel</span><span class="hex">#33363C</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#4A4E56"></div><div class="meta"><span class="name">--ef-line-2</span><span class="hex">#4A4E56</span></div></div>
+      </div>
+      <p class="spec">The steel is the tell — a blue-grey, never a neutral grey. It carries every border and inactive state.</p>
+
+      <h4>Ink</h4>
+      <div class="grid c4">
+        <div class="swatch"><div class="chip" style="background:#F0F0F2"></div><div class="meta"><span class="name">--ef-ink</span><span class="hex">#F0F0F2</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#A8ABB2"></div><div class="meta"><span class="name">--ef-ink-2</span><span class="hex">#A8ABB2</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#6C6F76"></div><div class="meta"><span class="name">--ef-ink-3</span><span class="hex">#6C6F76</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#44474D"></div><div class="meta"><span class="name">--ef-ink-4</span><span class="hex">#44474D</span></div></div>
+      </div>
+
+      <h4>Accent</h4>
+      <div class="grid c3">
+        <div class="swatch"><div class="chip" style="background:#FFFA00"></div><div class="meta"><span class="name">--ef-yellow · ×3</span><span class="hex">#FFFA00</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#00FFA2"></div><div class="meta"><span class="name">--ef-cyan · ×1</span><span class="hex">#00FFA2</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#FF1AAC"></div><div class="meta"><span class="name">--ef-magenta · ×1</span><span class="hex">#FF1AAC</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#FDFD1F"></div><div class="meta"><span class="name">--ef-yellow-hot</span><span class="hex">#FDFD1F · hover</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#67B2E0"></div><div class="meta"><span class="name">--ef-link</span><span class="hex">#67B2E0 · links</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#D91E36"></div><div class="meta"><span class="name">--ef-crimson</span><span class="hex">#D91E36 · banners</span></div></div>
+      </div>
+
+      <div class="grid c2">
+        <div class="ef-callout ef-callout--do"><span class="ef-callout__label">Do</span><p>Let yellow carry the structure and the focus state. Reach for cyan only to say "this reading is fine", magenta only to say "attention". Keep the ground genuinely dark.</p></div>
+        <div class="ef-callout ef-callout--dont"><span class="ef-callout__label">Don't</span><p>Balance the three colours. Fill panels with accent. Set body text in yellow. Put the triband on more than one element in a view. Use yellow as text on the DOC ground — it fails contrast there; it becomes fill-only.</p></div>
+      </div>
+
+      <h4>Status — separate from the accent</h4>
+      <div class="demo demo-row">
+        <span class="ef-badge ef-badge--ok">OK</span><span class="ef-badge ef-badge--warn">WARN</span><span class="ef-badge ef-badge--crit">CRIT</span>
+        <span class="ef-tag">--ef-ok = cyan</span><span class="ef-tag">--ef-warn = yellow</span><span class="ef-tag">--ef-crit = magenta</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="sec" id="s2">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.02</span><h2>Type</h2></div>
+    <div class="body reveal">
+      <p>Three faces, three jobs. The authentic game faces are <em>Novecentosanswide</em> and <em>Gilroy</em> — the system ships free stand-ins that hold the character. The display face is chosen so its chamfered letterforms rhyme with the panel shape.</p>
+      <div class="demo">
+        <div class="type-spec">
+          <div style="font-family:var(--ef-font-display); font-weight:700; font-size:var(--ef-t-46); text-transform:uppercase; letter-spacing:var(--ef-track-tight)">Automation Core</div>
+          <span class="tn">--ef-font-display · Chakra Petch · headings, labels, the wordmark. Uppercase always. The wordmark gets +0.3em tracking.</span>
+        </div>
+        <div class="type-spec">
+          <div style="font-family:var(--ef-font-body); font-size:var(--ef-t-18)">The rig reads the frontier. Every panel is a gauge; every number was measured a moment ago.</div>
+          <span class="tn">--ef-font-body · Jost · running text, card copy. Sentence case.</span>
+        </div>
+        <div class="type-spec">
+          <div style="font-family:var(--ef-font-mono); font-size:var(--ef-t-16); color:var(--ef-cyan)">OP_MODE: ACTIVE&nbsp;·&nbsp;PWR 82.4%&nbsp;·&nbsp;14:22:07Z&nbsp;·&nbsp;[SEC.02]</div>
+          <span class="tn">--ef-font-mono · JetBrains Mono · every number, label, timestamp, code, bracket-tag. Tabular. Uppercase labels at 0.14em.</span>
+        </div>
+      </div>
+      <h4>Scale</h4>
+      <div class="ef-table-wrap"><table class="ef-table">
+        <thead><tr><th>Token</th><th>px / rem</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td>--ef-t-72</td><td>72 · 4.5</td><td>Hero</td></tr>
+          <tr><td>--ef-t-46</td><td>46 · 2.875</td><td>Page title</td></tr>
+          <tr><td>--ef-t-34</td><td>34 · 2.125</td><td>Stat numbers</td></tr>
+          <tr><td>--ef-t-26</td><td>26 · 1.625</td><td>Section H2</td></tr>
+          <tr><td>--ef-t-21</td><td>21 · 1.3125</td><td>H3</td></tr>
+          <tr><td>--ef-t-16 / 18</td><td>16 · 18</td><td>Body / lede</td></tr>
+          <tr><td>--ef-t-13 / 14</td><td>13 · 14</td><td>Dense UI, cells, fields</td></tr>
+          <tr><td>--ef-t-11 / 12</td><td>11 · 12</td><td>Mono labels, telemetry</td></tr>
+        </tbody>
+      </table></div>
+      <h4>The wordmark &amp; the glitch echo</h4>
+      <div class="demo" style="display:flex;align-items:center;gap:var(--ef-5);flex-wrap:wrap">
+        <span class="ef-echo" data-text="ENDFIELD" style="font-family:var(--ef-font-display);font-weight:700;font-size:var(--ef-t-34);text-transform:uppercase;letter-spacing:var(--ef-track-wide);padding-left:0.3em;color:var(--ef-ink)">Endfield</span>
+        <span class="ef-label">.ef-echo · the heading duplicated above itself, offset, sliced — straight off the game's "WHO ARE YOU?" screen</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="sec" id="s3">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.03</span><h2>Structure</h2></div>
+    <div class="body reveal">
+      <div class="grid c2">
+        <div class="demo">
+          <h4>Space — 4px base</h4>
+          <div style="display:flex;align-items:flex-end;gap:var(--ef-2);margin-top:var(--ef-3)">
+            <div style="width:var(--ef-1);height:var(--ef-1);background:var(--ef-accent)"></div>
+            <div style="width:var(--ef-2);height:var(--ef-2);background:var(--ef-accent)"></div>
+            <div style="width:var(--ef-3);height:var(--ef-3);background:var(--ef-accent)"></div>
+            <div style="width:var(--ef-4);height:var(--ef-4);background:var(--ef-accent)"></div>
+            <div style="width:var(--ef-5);height:var(--ef-5);background:var(--ef-accent)"></div>
+            <div style="width:var(--ef-6);height:var(--ef-6);background:var(--ef-accent)"></div>
+            <div style="width:var(--ef-7);height:var(--ef-7);background:var(--ef-accent)"></div>
+          </div>
+          <p class="spec"><b>--ef-1…9</b> = 4 · 8 · 12 · 16 · 24 · 36 · 56 · 88 · 128</p>
+        </div>
+        <div class="demo">
+          <h4>The chamfer — TR + BL</h4>
+          <div class="demo-row" style="margin-top:var(--ef-3)">
+            <div class="ef-chamfer" style="width:5rem;height:3rem;background:var(--ef-surface-2);border:1px solid var(--ef-line)"></div>
+            <div class="ef-chamfer" style="--ef-cut:var(--ef-cut-lg);width:5rem;height:3rem;background:var(--ef-surface-2);border:1px solid var(--ef-line-2)"></div>
+            <div style="width:5rem;height:3rem;background:var(--ef-surface-2);border:1px solid var(--ef-line);border-left:3px solid var(--ef-accent)"></div>
+          </div>
+          <p class="spec"><b>--ef-cut</b> 10px default · <b>--ef-cut-lg</b> 16px · <b>--ef-radius</b> 0, always · <b>--ef-rail</b> 3px active edge</p>
+        </div>
+      </div>
+      <div class="ef-callout"><span class="ef-callout__label">Rule</span><p>Layout does spacing — flex / grid with <code>gap</code>, never stacked margins. Wide content scrolls inside its own box. The page body never scrolls sideways.</p></div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="sec" id="s4">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.04</span><h2>Marks</h2></div>
+    <div class="body reveal">
+      <p>The vocabulary. Used consistently, these are what make a screen read as Endfield and not just "dark sci-fi".</p>
+      <div class="grid c3">
+        <div class="demo" style="text-align:center">
+          <div style="display:flex;gap:var(--ef-4);justify-content:center;align-items:center;margin:var(--ef-4) 0">
+            <span class="ef-diamond"></span><span class="ef-diamond" data-active></span>
+            <span class="ef-diamond" style="animation:ef-breathe 2s ease-in-out infinite;background:var(--ef-cyan);border-color:var(--ef-cyan)"></span>
+          </div>
+          <p class="spec"><b>.ef-diamond</b> — hollow available · filled active · breathing standby. The selection marker.</p>
+        </div>
+        <div class="demo" style="text-align:center">
+          <div class="ef-brackets" style="display:inline-block;padding:var(--ef-4) var(--ef-5);margin:var(--ef-3) 0"><span class="ef-mono ef-dim" style="font-size:var(--ef-t-12)">focus region</span></div>
+          <p class="spec"><b>.ef-brackets</b> — TL + BR corner pair, offset just outside the box.</p>
+        </div>
+        <div class="demo" style="text-align:center">
+          <div style="margin:var(--ef-5) 0"><span class="ef-chevrons" data-run><span>‹</span><span>‹</span><span>‹</span><span>‹</span></span>&nbsp;&nbsp;<span class="ef-mono ef-dim" style="font-size:var(--ef-t-11)">RETURN</span>&nbsp;&nbsp;<span class="ef-chevrons" data-run><span>›</span><span>›</span><span>›</span><span>›</span></span></div>
+          <p class="spec"><b>.ef-chevrons[data-run]</b> — directional decoration on rails.</p>
+        </div>
+      </div>
+      <div class="grid c2">
+        <div class="demo">
+          <h4>Dividers</h4>
+          <div style="display:flex;flex-direction:column;gap:var(--ef-4);margin-top:var(--ef-4)">
+            <hr class="ef-rule"><hr class="ef-rule ef-rule--glow"><hr class="ef-rule--tri">
+          </div>
+          <p class="spec"><b>.ef-rule</b> flat · <b>--glow</b> lights the middle, fades both ends · <b>--tri</b> the triband (once per view)</p>
+        </div>
+        <div class="demo">
+          <h4>Banner &amp; syntax</h4>
+          <div class="demo-row" style="margin-top:var(--ef-3)">
+            <span class="ef-banner"><span class="ef-slash">//</span> Operator Story</span>
+          </div>
+          <p class="ef-mono" style="font-size:var(--ef-t-13);color:var(--ef-ink-2);margin-top:var(--ef-3)"><span class="ef-accent-c">//</span> prefix&nbsp;·&nbsp;<span class="ef-accent-c">[</span> bracketed subtitle <span class="ef-accent-c">]</span>&nbsp;·&nbsp;name<sup class="ef-accent-c">+</sup>&nbsp;·&nbsp;<span class="ef-accent-c">▽</span> emblem&nbsp;·&nbsp;<span class="ef-accent-c">YYYY.MM.DD</span></p>
+          <div class="ef-datastrip" style="margin-top:var(--ef-4)"></div>
+          <p class="spec"><b>.ef-datastrip</b> — segmented edge texture · <b>.ef-micro</b> — decorative telemetry</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="sec" id="s5">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.05</span><h2>Surface</h2></div>
+    <div class="body reveal">
+      <p>Textures are CSS — they retint with the theme and cost nothing. Keep them near-invisible; atmosphere, not content.</p>
+      <div class="grid c3">
+        <div class="tile ef-dots"><span>.ef-dots</span></div>
+        <div class="tile" style="color:var(--ef-yellow)"><div class="ef-halftone" style="position:absolute;inset:0;opacity:.5"></div><span>.ef-halftone</span></div>
+        <div class="tile" style="background:repeating-linear-gradient(0deg,transparent 0 2px,color-mix(in srgb,var(--ef-ink) 4%,transparent) 2px 4px)"><span>scanlines · 2px</span></div>
+        <div class="tile" style="background-image:linear-gradient(color-mix(in srgb,var(--ef-line) 5%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--ef-line) 5%,transparent) 1px,transparent 1px);background-size:2.5rem 2.5rem"><span>grid overlay · 60px</span></div>
+        <div class="tile" style="background:var(--ef-surface)"><span>--ef-surface</span></div>
+        <div class="tile" style="background:var(--ef-well)"><span>--ef-well</span></div>
+      </div>
+      <div class="grid c3">
+        <div class="ef-panel"><span class="ef-label">.ef-panel</span><p style="margin-top:var(--ef-2);font-size:var(--ef-t-13);color:var(--ef-ink-2)">Chamfered, hairline outline. The default plane for a group of content.</p></div>
+        <div class="demo"><span class="ef-label">.demo / raw box</span><p style="margin-top:var(--ef-2);font-size:var(--ef-t-13);color:var(--ef-ink-2)">Square when the chamfer would fight a tight grid. Still just a hairline.</p></div>
+        <div class="ef-well"><span class="ef-label">.ef-well</span><p style="margin-top:var(--ef-2);font-size:var(--ef-t-13);color:var(--ef-ink-2)">Inset. Fields, code, sunken readouts.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="sec" id="s6">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.06</span><h2>Controls</h2></div>
+    <div class="body reveal">
+      <div class="demo">
+        <h4>Buttons — outline by default, one fill per group</h4>
+        <div class="demo-row" style="margin-top:var(--ef-3)">
+          <button class="ef-btn ef-btn--primary" type="button">Deploy now</button>
+          <button class="ef-btn" type="button">Inspect</button>
+          <button class="ef-btn ef-btn--ghost" type="button">Cancel</button>
+          <button class="ef-btn ef-btn--danger" type="button">Purge</button>
+          <button class="ef-btn" type="button" aria-disabled="true"><span class="ef-spinner"></span> Working</button>
+        </div>
+        <p class="spec">Corners cut 7px. Hover snaps the outline to yellow. The spinner is a chamfered box, not a circle.</p>
+      </div>
+      <div class="grid c2">
+        <div class="demo">
+          <h4>Fields</h4>
+          <div style="display:flex;flex-direction:column;gap:var(--ef-3);margin-top:var(--ef-3)">
+            <label class="ef-field"><span class="ef-label">Host</span><input class="ef-input" value="example.internal" aria-label="Host"></label>
+            <label class="ef-field"><span class="ef-label">Region</span><select class="ef-select" aria-label="Region"><option>eu-west / lisbon</option><option>frontier</option></select></label>
+            <label class="ef-field"><span class="ef-label">Notes</span><textarea class="ef-textarea" aria-label="Notes">Consistent logical dump — a restore is not crash-recovery roulette.</textarea></label>
+          </div>
+        </div>
+        <div class="demo">
+          <h4>Switches — the thumb is a chamfered block</h4>
+          <div style="display:flex;flex-direction:column;gap:var(--ef-4);margin-top:var(--ef-3)">
+            <label style="display:flex;align-items:center;gap:var(--ef-3)"><span class="ef-toggle"><input type="checkbox" checked><span></span></span><span class="ef-label">Auto-deploy · ON</span></label>
+            <label style="display:flex;align-items:center;gap:var(--ef-3)"><span class="ef-toggle"><input type="checkbox"><span></span></span><span class="ef-label">Maintenance hold · OFF</span></label>
+            <div><span class="ef-label">Power ceiling</span><input class="ef-range" type="range" value="72" aria-label="Power ceiling" style="margin-top:var(--ef-3)"></div>
+            <div class="demo-row"><label class="ef-check"><input type="checkbox" checked> precious</label><label class="ef-check"><input type="checkbox"> full</label><label class="ef-check"><input type="checkbox" checked> local</label></div>
+            <p class="spec">Checkboxes are diamonds too — per the game's identity screen.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="sec" id="s7">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.07</span><h2>Data</h2></div>
+    <div class="body reveal">
+      <p>A dashboard is scanned, not read. State reads at a glance — a diamond, a stripe, a badge — before the number does.</p>
+      <div class="grid c3">
+        <div class="ef-card ef-brackets" data-active><div class="ef-card__head"><span class="ef-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z"/></svg></span><div><div class="ef-card__title">Deploy loop</div><div class="ef-card__meta">svc // deploy</div></div></div><div class="ef-stat"><span class="ef-stat__num">10<span class="ef-stat__unit">MIN</span></span><span class="ef-label">interval · last OK 3m ago</span></div></div>
+        <div class="ef-card ef-brackets"><div class="ef-card__head"><div><div class="ef-card__title">Restic</div><div class="ef-card__meta">44 snapshots · check clean</div></div></div>
+          <div class="ef-progress"><div class="ef-progress__head"><span class="ef-label">/mnt/backup</span><span class="ef-value">9%</span></div><div class="ef-progress__track"><div class="ef-progress__fill" style="width:9%"></div></div></div>
+          <div style="margin-top:var(--ef-3)"><span class="ef-label">Power draw</span><div class="ef-meter" style="margin-top:var(--ef-2)"><span class="ef-meter__seg" data-on></span><span class="ef-meter__seg" data-on></span><span class="ef-meter__seg" data-on></span><span class="ef-meter__seg" data-on></span><span class="ef-meter__seg" data-on></span><span class="ef-meter__seg" data-on></span><span class="ef-meter__seg" data-on></span><span class="ef-meter__seg" data-on></span><span class="ef-meter__seg" data-on></span><span class="ef-meter__seg" data-on></span><span class="ef-meter__seg" data-on></span><span class="ef-meter__seg" data-on data-hot></span><span class="ef-meter__seg" data-on data-hot></span><span class="ef-meter__seg"></span><span class="ef-meter__seg"></span><span class="ef-meter__seg"></span></div></div>
+        </div>
+        <div class="ef-card ef-brackets"><div class="ef-card__head"><div><div class="ef-card__title">HAOS</div><div class="ef-card__meta">vm // idle</div></div></div><div class="ef-stat"><span class="ef-stat__num ef-stat__num--cyan">200</span><span class="ef-label">home-assistant · v18.2</span></div><div class="demo-row" style="margin-top:var(--ef-3)"><span class="ef-pill" data-state="ok"><span class="ef-diamond"></span> Nominal</span></div></div>
+      </div>
+      <h4>Table</h4>
+      <div class="ef-table-wrap"><table class="ef-table">
+        <thead><tr><th>Stack</th><th>Image</th><th class="ef-nums">Ports</th><th>State</th></tr></thead>
+        <tbody>
+          <tr><td>caddy</td><td>caddy:2.11</td><td class="ef-nums">80, 443</td><td><span class="ef-badge ef-badge--ok">OK</span></td></tr>
+          <tr><td>sso</td><td>oauth / oidc provider</td><td class="ef-nums">—</td><td><span class="ef-badge ef-badge--ok">OK</span></td></tr>
+          <tr><td>factorio</td><td>factoriotools/factorio:2.0.77</td><td class="ef-nums">34197/udp</td><td><span class="ef-badge ef-badge--warn">HOLD</span></td></tr>
+          <tr><td>socket-proxy</td><td>tecnativa/docker-socket-proxy:0.3.0</td><td class="ef-nums">—</td><td><span class="ef-badge ef-badge--ok">OK</span></td></tr>
+        </tbody>
+      </table></div>
+      <h4>Log</h4>
+      <div class="ef-log demo" style="padding:0">
+        <div class="ef-log__row" data-level="ok"><span class="ef-log__ts">13:42:50</span><span class="ef-log__tag">[deploy]</span><span>OK — deployed crowdsec dozzle openobserve socket-proxy zabbix</span></div>
+        <div class="ef-log__row" data-level="ok"><span class="ef-log__ts">13:38:57</span><span class="ef-log__tag">[full]</span><span>HAOS application-consistent snapshot taken (freeze/thaw ok)</span></div>
+        <div class="ef-log__row" data-level="warn"><span class="ef-log__ts">12:52:33</span><span class="ef-log__tag">[prune]</span><span>stale lock cleared before forget+prune</span></div>
+        <div class="ef-log__row" data-level="crit"><span class="ef-log__ts">08-29 16:32</span><span class="ef-log__tag">[restic]</span><span>exclusive lock held 20h — check blocked</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section class="sec" id="s8">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.08</span><h2>Overlays</h2></div>
+    <div class="body reveal">
+      <div class="grid c2">
+        <div>
+          <h4>Modal</h4>
+          <div class="ef-modal-demo" style="margin-top:var(--ef-3)">
+            <div class="ef-modal">
+              <div class="ef-modal__head"><h4>// CONFIRM · PURGE</h4><span class="ef-label">ESC</span></div>
+              <div class="ef-modal__body"><p>Deletes <strong>2</strong> stale runner rows. Logged, not reversible.</p>
+                <div class="demo-row" style="margin-top:var(--ef-4)"><button class="ef-btn ef-btn--danger" type="button">Purge</button><button class="ef-btn ef-btn--ghost" type="button">Keep</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4>Tabs &amp; tooltip</h4>
+          <div class="demo" style="margin-top:var(--ef-3)">
+            <div class="ef-tabs" role="tablist"><button class="ef-tab" role="tab" aria-selected="true" type="button">Overview</button><button class="ef-tab" role="tab" aria-selected="false" type="button">Routes</button><button class="ef-tab" role="tab" aria-selected="false" type="button">Logs</button></div>
+            <p style="margin-top:var(--ef-4);font-size:var(--ef-t-14);color:var(--ef-ink-2)">A <span class="ef-tip" data-tip="crowdsec · dozzle · vector" tabindex="0">socket-proxy</span> fronts the read-only Docker consumers.</p>
+          </div>
+          <div class="ef-callout" style="margin-top:var(--ef-3)"><span class="ef-callout__label">Callout</span><p>Left rail carries the semantic colour — <code>--do</code> cyan, <code>--dont</code> magenta, default steel.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section class="sec" id="s9">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.09</span><h2>Chrome</h2></div>
+    <div class="body reveal">
+      <div class="grid c2">
+        <div class="demo"><h4>Header</h4><p style="font-size:var(--ef-t-14);color:var(--ef-ink-2);margin-top:var(--ef-2)">A chamfered wordmark plate, a mono kicker, a diamond status pill, a mono clock, the surface toggle — with a 2px triband beneath. Scroll up to see this page's.</p></div>
+        <div class="demo"><h4>Section head</h4><div class="ef-sec-head" style="margin-top:var(--ef-3)"><span class="ef-idx">SEC.NN</span><h2 style="font-size:var(--ef-t-21)">Title</h2></div><p class="spec"><b>SEC.NN //</b> mono index · uppercase title · hairline rule with a 3rem yellow lead-in</p></div>
+      </div>
+      <div class="demo"><h4>Viewport brackets &amp; data strip</h4><p style="font-size:var(--ef-t-14);color:var(--ef-ink-2);margin-top:var(--ef-2)">Four fixed corner brackets frame the screen. A segmented mono strip scrolls along the bottom edge — real values, slow, <code>linear</code>, off under reduced-motion. Both live on this page now.</p></div>
+      <div class="demo"><h4>Boot</h4><p style="font-size:var(--ef-t-14);color:var(--ef-ink-2);margin-top:var(--ef-2)">Once per load, ~2s, click to skip: the <code>ENDFIELD</code> wordmark with its glitch echo, a typing <code>INITIALIZING PROTOCOL // AUTOMATION-CORE</code> line, the motto, and a single <strong>triband</strong> load bar — the one place the three colours appear together. Reduced-motion cuts straight to the page.</p></div>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="sec" id="s10">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.10</span><h2>Motion</h2></div>
+    <div class="body reveal">
+      <div class="ef-table-wrap"><table class="ef-table">
+        <thead><tr><th>Token / name</th><th>Value</th><th>For</th></tr></thead>
+        <tbody>
+          <tr><td>--ef-ease</td><td>cubic-bezier(1, 0, .7, 1)</td><td>State snaps, hovers — the game's curve</td></tr>
+          <tr><td>--ef-ease-out</td><td>cubic-bezier(.16, 1, .3, 1)</td><td>Panels, progress settling</td></tr>
+          <tr><td>--ef-dur-1/2/3</td><td>.12 / .28 / .6 s</td><td>Snap / hover / reveal</td></tr>
+          <tr><td>ef-dspin</td><td>rotate 405°, .8s linear</td><td>The chamfered-box spinner</td></tr>
+          <tr><td>ef-wipe</td><td>inset-clip L→R, .6s</td><td>Reveal on scroll</td></tr>
+          <tr><td>ef-breathe</td><td>opacity+scale, 2s ease-in-out</td><td>Standby diamonds</td></tr>
+          <tr><td>ef-glitch</td><td>±1px jitter, on trigger</td><td>Wordmark / alert, sparingly</td></tr>
+          <tr><td>ef-chev</td><td>opacity+shift, 1.4s stagger</td><td>Chevron runs</td></tr>
+        </tbody>
+      </table></div>
+      <div class="demo demo-row">
+        <button class="ef-btn" type="button" id="replay">Replay this section</button>
+        <span class="ef-spinner" style="color:var(--ef-accent-ink)"></span>
+        <span class="ef-chevrons" data-run><span>›</span><span>›</span><span>›</span><span>›</span></span>
+      </div>
+      <div class="ef-callout"><span class="ef-callout__label">Restraint</span><p>One orchestrated moment — the boot — plus quiet scroll reveals. Everything else is instant state. Every animation must no-op under <code>prefers-reduced-motion</code>.</p></div>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="sec" id="s11">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.11</span><h2>Voice</h2></div>
+    <div class="body reveal">
+      <p>Words are design material. The system talks like field telemetry: terse, present-tense, specific.</p>
+      <div class="grid c2">
+        <div class="ef-callout ef-callout--do"><span class="ef-callout__label">Sounds right</span><p class="ef-mono" style="font-size:var(--ef-t-12);color:var(--ef-ink-2)">SYSTEM NOMINAL · 31 CONTAINERS<br>OP_MODE: ACTIVE · SECTOR CLEAR<br>backup full — done (rc=0)<br>Deploy now → "Deployed"</p></div>
+        <div class="ef-callout ef-callout--dont"><span class="ef-callout__label">Doesn't</span><p class="ef-mono" style="font-size:var(--ef-t-12);color:var(--ef-ink-2)">"Everything looks good! 🎉"<br>"Oops — something went wrong."<br>"Please wait while we process…"<br>"Are you sure you want to…"</p></div>
+      </div>
+      <div class="demo"><h4>Vocabulary</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:var(--ef-2);margin-top:var(--ef-3);font-size:var(--ef-t-14);color:var(--ef-ink-2)">
+          <li><span class="ef-diamond ef-diamond--sm" data-active style="margin-right:8px"></span><code>[SEC.NN]</code> · <code>[SYS]</code> · <code>[ OK ]</code> — bracketed tags in mono</li>
+          <li><span class="ef-diamond ef-diamond--sm" data-active style="margin-right:8px"></span><code>//</code> — separator and comment prefix</li>
+          <li><span class="ef-diamond ef-diamond--sm" data-active style="margin-right:8px"></span><code>OP_MODE</code> · <code>PWR</code> · <code>NODE</code> · <code>SECTOR</code> — screaming-snake field keys</li>
+          <li><span class="ef-diamond ef-diamond--sm" data-active style="margin-right:8px"></span>dates as <code>YYYY.MM.DD</code>, times with a trailing <code>Z</code></li>
+          <li><span class="ef-diamond ef-diamond--sm" data-active style="margin-right:8px"></span>buttons state the outcome; toasts confirm it. No apologies, no vagueness.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section class="sec" id="s12">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.12</span><h2>Use</h2></div>
+    <div class="body reveal">
+      <p>The <code>&lt;style&gt;</code> in this file's source is <code>endfield.css</code>. Everything under <code>@layer tokens / base / motif / components / utilities</code> is portable; <code>@layer page</code> is this document only.</p>
+      <div class="ef-code"><span class="c">/* 1 — fonts */</span>
+<span class="k">&lt;link</span> <span class="p">rel</span>=<span class="v">"stylesheet"</span> <span class="p">href</span>=<span class="v">"…Chakra+Petch:wght@400..700&amp;family=Jost&amp;family=JetBrains+Mono…"</span><span class="k">&gt;</span>
+
+<span class="c">/* 2 — the sheet + the layer order it expects */</span>
+<span class="k">@layer</span> tokens, base, motif, components, utilities;
+<span class="k">@import</span> <span class="v">"endfield.css"</span>;
+
+<span class="c">/* 3 — pick a surface (HUD is the default) */</span>
+<span class="k">&lt;html</span> <span class="p">data-theme</span>=<span class="v">"dark"</span><span class="k">&gt;</span>   <span class="c">/* "light" = DOC · omit = follow the OS */</span>
+
+<span class="c">/* 4 — build with tokens, never literals */</span>
+.thing {
+  background: <span class="v">var(--ef-surface)</span>;
+  border: <span class="v">var(--ef-bw)</span> solid <span class="v">var(--ef-line)</span>;
+  clip-path: <span class="v">var(--ef-chamfer)</span>;
+  color: <span class="v">var(--ef-ink)</span>;
+}</div>
+      <div class="grid c3">
+        <div class="ef-card ef-brackets" data-active><div class="ef-card__title">Dashboards</div><p style="font-size:var(--ef-t-13);color:var(--ef-ink-2);margin-top:var(--ef-2)">HUD. Chamfered cards, diamond status, the bottom data strip.</p></div>
+        <div class="ef-card ef-brackets"><div class="ef-card__title">Home-automation theme</div><p style="font-size:var(--ef-t-13);color:var(--ef-ink-2);margin-top:var(--ef-2)">HUD. Theme YAML maps straight onto these tokens.</p></div>
+        <div class="ef-card ef-brackets"><div class="ef-card__title">Runbooks / reports</div><p style="font-size:var(--ef-t-13);color:var(--ef-ink-2);margin-top:var(--ef-2)">DOC. Light ground, same marks, yellow as fill not text.</p></div>
+      </div>
+      <div class="ef-well ef-mono" style="font-size:var(--ef-t-12);color:var(--ef-ink-2)">Consumed as a single <b class="ef-accent-c">endfield.css</b> — link it, set <code>@layer</code> order, pick a surface.</div>
+    </div>
+  </section>
+
+  <!-- 13 -->
+  <section class="sec" id="s13">
+    <div class="ef-sec-head"><span class="ef-idx">SEC.13</span><h2>Patterns</h2></div>
+    <div class="body reveal">
+      <p class="lede">Composite pieces lifted from the game's own screens (g01&ndash;g77). A dense dashboard is built from these &mdash; a nav rail, a detail drawer, a task list, a gauge &mdash; not from bare cards.</p>
+
+      <div class="grid c2">
+        <div class="demo">
+          <h4>Skewed nav &mdash; <code>.ef-skewnav</code></h4>
+          <div class="ef-skewnav" style="margin-top:var(--ef-3)">
+            <button class="ef-skewnav__item" data-active type="button"><span>&#9654; Deploy loop</span></button>
+            <button class="ef-skewnav__item" type="button"><span>Backups</span></button>
+            <button class="ef-skewnav__item" type="button" style="position:relative"><span>Security</span><span class="ef-notif"></span></button>
+            <button class="ef-skewnav__item" type="button"><span>Routes</span></button>
+          </div>
+          <p class="spec"><b>skewX(-8&deg;)</b>, contents counter-sheared. Active = solid yellow. The orange <b>.ef-notif</b> square rides the corner. The Endfield menu list.</p>
+        </div>
+        <div class="demo">
+          <h4>Rail nav &mdash; <code>.ef-railnav</code></h4>
+          <div class="ef-railnav" style="margin-top:var(--ef-3)">
+            <button class="ef-railnav__item" aria-current="true" type="button">AIC Quota</button>
+            <button class="ef-railnav__item" type="button">Bond Quota</button>
+            <button class="ef-railnav__item" type="button">Endpoint Quota</button>
+          </div>
+          <p class="spec">The un-sheared sidebar &mdash; 3px yellow rail on the active row. For DOC-mode index screens.</p>
+        </div>
+      </div>
+
+      <div class="demo">
+        <h4>Detail drawer &mdash; <code>.ef-drawer</code> + <code>.ef-statrow</code></h4>
+        <div class="ef-drawer" style="max-width:22rem;margin-top:var(--ef-3)">
+          <div class="ef-drawer__head">
+            <span class="ef-icon ef-facet"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l9 5v10l-9 5-9-5V7z"/></svg></span>
+            <div><div class="ef-drawer__title">caddy</div><div class="ef-drawer__sub">stack // edge &middot; 80 &middot; 443</div></div>
+          </div>
+          <div class="ef-drawer__body">
+            <div class="ef-drawer__sec">Image</div>
+            <p class="ef-mono" style="font-size:var(--ef-t-12);color:var(--ef-ink-2)">caddy:2.11 &mdash; <span class="ef-kw">xcaddy</span> + <span class="ef-kw--u">dns-01</span> + <span class="ef-kw">webdav</span></p>
+            <div class="ef-drawer__sec">Readings</div>
+            <div class="ef-statrow"><span class="ef-statrow__k">Uptime</span><span class="ef-statrow__v">18d</span></div>
+            <div class="ef-statrow ef-statrow--key"><span class="ef-statrow__k">Requests /min</span><span class="ef-statrow__v">1,204</span></div>
+            <div class="ef-statrow"><span class="ef-statrow__k">TLS expiry</span><span class="ef-statrow__v">2026.11.25</span></div>
+            <div class="ef-statrow"><span class="ef-statrow__k">Mem</span><span class="ef-statrow__v">64 MB <span class="ef-delta">-3</span></span></div>
+          </div>
+          <div class="ef-drawer__foot"><button class="ef-btn ef-btn--primary" type="button" style="width:100%;justify-content:center">Restart stack</button></div>
+        </div>
+        <p class="spec">Faceted icon + name/meta &middot; UPPERCASE section labels &middot; pipe-aligned <b>| value</b> rows &middot; one <b>--key</b> row on yellow &middot; cyan <b>.ef-kw</b> keywords, blue <b>.ef-delta</b> &middot; one full-width action pinned to the foot.</p>
+      </div>
+
+      <div class="demo">
+        <h4>Task rows &mdash; <code>.ef-task[data-state]</code></h4>
+        <div style="display:flex;flex-direction:column;gap:var(--ef-1);margin-top:var(--ef-3)">
+          <div class="ef-task" data-state="ready"><span class="ef-task__title">Weekly restic check &mdash; ready to run</span><span class="ef-badge ef-badge--warn">CLAIM</span><button class="ef-btn ef-btn--primary" type="button">Run</button></div>
+          <div class="ef-task" data-state="active"><span class="ef-task__title">Renovate PR sweep <span class="ef-mono ef-dim">3 / 6</span></span><span class="ef-chevrons" data-run><span>&rsaquo;</span><span>&rsaquo;</span><span>&rsaquo;</span></span><span class="ef-mono ef-dim">running</span><span class="ef-task__prog"><i style="width:50%"></i></span></div>
+          <div class="ef-task" data-state="done"><span class="ef-task__title">Nightly full backup &mdash; done (rc=0)</span><span class="ef-mono ef-dim">04:05</span><span class="ef-mono ef-dim">&#10003;</span></div>
+        </div>
+        <p class="spec"><b>ready</b> solid yellow + action &middot; <b>active</b> yellow rail + thin progress line &middot; <b>done</b> dimmed, struck through. From the event / mission screens.</p>
+      </div>
+
+      <div class="grid c3">
+        <div class="demo" style="text-align:center">
+          <h4>Radial gauge</h4>
+          <div style="display:flex;justify-content:center;align-items:center;gap:var(--ef-4);margin:var(--ef-4) 0">
+            <div class="ef-gauge" style="--ef-gauge-v:67"><span class="ef-gauge__v">67</span><span class="ef-gauge__l">pwr</span></div>
+            <div class="ef-gauge" style="--ef-gauge-v:9"><span class="ef-gauge__v">9%</span><span class="ef-gauge__l">disk</span></div>
+          </div>
+          <p class="spec"><b>.ef-gauge</b> &middot; set <code>--ef-gauge-v</code> 0&ndash;100. Conic ring, masked to a donut.</p>
+        </div>
+        <div class="demo" style="text-align:center">
+          <h4>Slash pips</h4>
+          <div style="margin:var(--ef-5) 0">
+            <span class="ef-pips">
+              <span class="ef-pips__seg" data-on></span><span class="ef-pips__seg" data-on></span><span class="ef-pips__seg" data-on></span><span class="ef-pips__seg" data-on></span><span class="ef-pips__seg" data-on></span><span class="ef-pips__seg" data-on></span><span class="ef-pips__seg" data-on></span><span class="ef-pips__seg" data-on></span>
+              <span class="ef-pips__max">MAX</span>
+            </span>
+          </div>
+          <p class="spec"><b>.ef-pips</b> &mdash; skewed segments, the game's mastery bar. <code>data-hot</code> turns a segment magenta.</p>
+        </div>
+        <div class="demo" style="text-align:center">
+          <h4>Spine rail</h4>
+          <div class="ef-spine" style="display:inline-flex;text-align:left;margin:var(--ef-3) 0">
+            <div class="ef-spine__node" data-active><span class="ef-mono" style="font-size:var(--ef-t-12)">caddy</span></div>
+            <div class="ef-spine__node"><span class="ef-mono ef-dim" style="font-size:var(--ef-t-12)">sso</span></div>
+            <div class="ef-spine__node"><span class="ef-mono ef-dim" style="font-size:var(--ef-t-12)">crowdsec</span></div>
+          </div>
+          <p class="spec"><b>.ef-spine</b> &mdash; vertical rail, diamond nodes. Gear slots in-game; a dependency chain here.</p>
+        </div>
+      </div>
+
+      <div class="grid c2">
+        <div class="demo">
+          <h4>Structural slab &mdash; <code>.ef-slab</code></h4>
+          <div class="ef-slab" style="margin-top:var(--ef-3)">
+            <div class="ef-mono" style="font-size:var(--ef-t-11);font-weight:700">// SYSTEM</div>
+            <div style="font-family:var(--ef-font-display);font-weight:700;font-size:var(--ef-t-34);line-height:1">NOMINAL</div>
+            <div class="ef-mono" style="font-size:var(--ef-t-12)">31 containers &middot; 0 alerts</div>
+            <span class="ef-slab__wm">CLOCKMOST</span>
+          </div>
+          <p class="spec">The big safety-yellow zone that carries the headline status. One per view. Watermark optional.</p>
+        </div>
+        <div class="demo">
+          <h4>ID card &mdash; <code>.ef-idcard</code></h4>
+          <div class="ef-idcard" style="max-width:16rem;margin-top:var(--ef-3)">
+            <span class="ef-idcard__tab">// operator</span>
+            <div class="ef-idcard__name">Benylin</div>
+            <div class="ef-idcard__body">
+              <div class="ef-statrow"><span class="ef-statrow__k">Authority</span><span class="ef-statrow__v">admin</span></div>
+              <div class="ef-datastrip"></div>
+            </div>
+          </div>
+          <p class="spec">Yellow name tab + display name + a data strip. The key-art badge, made a real panel &mdash; for profile / &ldquo;about&rdquo; blocks.</p>
+        </div>
+      </div>
+
+      <div class="grid c2">
+        <div>
+          <h4>Split-tone modal &mdash; <code>.ef-modal--split</code></h4>
+          <div class="ef-modal-demo" style="margin-top:var(--ef-3)">
+            <div class="ef-modal ef-modal--split">
+              <div class="ef-modal__head"><h4>// ADJUST &middot; POWER CEILING</h4><span class="ef-key">ESC</span></div>
+              <div class="ef-modal__body ef-modal__body--doc">
+                <p style="font-size:var(--ef-t-13)">Lowering to <strong>60%</strong> caps game-server draw. Reversible after 1h.</p>
+                <div class="demo-row" style="margin-top:var(--ef-3)"><button class="ef-btn ef-btn--primary" type="button">Confirm</button><button class="ef-btn ef-btn--ghost" type="button">Back</button></div>
+              </div>
+            </div>
+          </div>
+          <p class="spec">Dark context header, light decision body &mdash; the game's setting modals (g69, g73).</p>
+        </div>
+        <div>
+          <h4>Hybrid tooltip &mdash; <code>.ef-tipcard</code></h4>
+          <div style="margin-top:var(--ef-3);display:flex;justify-content:center">
+            <div class="ef-tipcard">
+              <div class="ef-tipcard__hd">Socket-proxy</div>
+              <div class="ef-tipcard__meta"><span class="ef-pill" data-state="ok"><span class="ef-diamond"></span> up</span><span class="ef-tag">GET-only</span><span class="ef-glitchstrip--v" style="min-height:1.4rem"></span></div>
+              <div class="ef-tipcard__doc">Filters <code>/var/run/docker.sock</code> &mdash; containers, images, events. POST / exec / volumes denied.</div>
+              <div class="ef-tipcard__stats"><div class="ef-statrow"><span class="ef-statrow__k">Consumers</span><span class="ef-statrow__v">3</span></div></div>
+            </div>
+          </div>
+          <p class="spec">Yellow head &middot; dark meta strip with the CMYK edge &middot; light doc body &middot; stats foot (g58).</p>
+        </div>
+      </div>
+
+      <div class="demo">
+        <h4>DOC report row &mdash; <code>.ef-report</code> <span class="ef-tag">toggle to DOC to read it right</span></h4>
+        <div class="ef-report" style="margin-top:var(--ef-3)">
+          <div class="ef-report__row">
+            <span class="ef-report__name ef-rarity" data-tier="5">Xiranite</span>
+            <span class="ef-report__fig"><svg viewBox="0 0 200 32" preserveAspectRatio="none" style="width:100%;height:2rem;display:block"><path d="M0 30 L40 18 L80 22 L120 8 L160 14 L200 6 L200 32 L0 32Z" fill="var(--ef-data-yield)" opacity="0.5"/><path d="M0 32 L40 26 L80 24 L120 20 L160 22 L200 16 L200 32 L0 32Z" fill="var(--ef-data-usage)" opacity="0.55"/></svg></span>
+            <span class="ef-report__data">yield 360 &middot; use 362</span>
+          </div>
+          <div class="ef-report__row">
+            <span class="ef-report__name ef-rarity" data-tier="3">Clean Water</span>
+            <span class="ef-report__fig"><svg viewBox="0 0 200 32" preserveAspectRatio="none" style="width:100%;height:2rem;display:block"><path d="M0 28 L40 24 L80 26 L120 22 L160 24 L200 20 L200 32 L0 32Z" fill="var(--ef-data-yield)" opacity="0.5"/><path d="M0 20 L40 14 L80 10 L120 6 L160 8 L200 4 L200 32 L0 32Z" fill="var(--ef-data-deficit)" opacity="0.4"/></svg></span>
+            <span class="ef-report__data"><span class="over">use 450 &gt; 360</span></span>
+          </div>
+        </div>
+        <p class="spec">Dark name chip (rarity-tier bottom border) &middot; inline-SVG area chart filled with <b>--ef-data-yield / -usage / -deficit</b> &middot; deficit row flags <b>.over</b>. The AIC factory reports (g70, g71).</p>
+      </div>
+
+      <div class="demo">
+        <h4>Small marks</h4>
+        <div class="demo-row" style="margin-top:var(--ef-3);gap:var(--ef-5)">
+          <span style="display:inline-flex;align-items:center;gap:6px"><span class="ef-reg"></span><span class="ef-micro">00.101</span> <span class="ef-label">.ef-reg</span></span>
+          <span class="ef-frame" style="padding:0.5rem 0.9rem"><span class="ef-mono ef-dim" style="font-size:var(--ef-t-11)">.ef-frame</span></span>
+          <span class="ef-currency">22,870 <span class="ef-currency__add">+</span></span>
+          <span class="ef-key">F10</span>
+          <span class="ef-facet" style="display:inline-grid;place-items:center;width:2rem;height:2rem;background:var(--ef-surface-2);border:1px solid var(--ef-line)"><span class="ef-mono" style="font-size:9px">facet</span></span>
+        </div>
+        <div class="ef-glitchstrip" style="margin-top:var(--ef-4)"></div>
+        <div class="demo-row" style="margin-top:var(--ef-4)">
+          <button class="ef-btn ef-btn--blocked" type="button" style="max-width:18rem">&#8856; Insufficient budget</button>
+        </div>
+        <p class="spec"><b>.ef-reg</b> survey crosshair &middot; <b>.ef-frame</b> four-corner ticks &middot; <b>.ef-currency</b> &middot; <b>.ef-key</b> &middot; <b>.ef-facet</b> octagon clip &middot; <b>.ef-glitchstrip</b> the CMYK band (once per view) &middot; <b>.ef-btn--blocked</b> for can't-afford / can't-claim. Also <b>.ef-hatch</b> for done overlays and <b>.ef-stamp</b> for a diagonal &ldquo;COMPLETED&rdquo;.</p>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+
+<footer>
+  ENDFIELD DESIGN SYSTEM · v1.1 · clockmost // design authority<br>
+  <span style="color:var(--ef-ink-4)">study sources: the in-game HUD · endfield.gryphline.com · touying-endfield · ReEnd-Components — not affiliated with Hypergryph / Gryphline</span>
+</footer>
+
+<div id="strip" aria-hidden="true"><div class="run" id="stripRun"></div></div>
+
+<script>
+(function () {
+  "use strict";
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var root = document.documentElement;
+
+  /* clock */
+  var ck = document.getElementById("clock");
+  (function tick() {
+    var d = new Date(), p = function (n) { return String(n).padStart(2, "0"); };
+    ck.textContent = p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
+    setTimeout(tick, 1000);
+  })();
+
+  /* surface toggle — HUD is the default for every viewer; DOC is opt-in */
+  var tg = document.getElementById("themeToggle");
+  if (!root.getAttribute("data-theme")) root.setAttribute("data-theme", "dark");
+  function isLight() { return root.getAttribute("data-theme") === "light"; }
+  function sync() { tg.textContent = isLight() ? "DOC" : "HUD"; }
+  sync();
+  tg.addEventListener("click", function () { root.setAttribute("data-theme", isLight() ? "dark" : "light"); sync(); draw(); });
+
+  /* data strip */
+  var items = ["NODE core-01","PWR 82.4%","CONTAINERS 31","BACKUP full · rc=0","HA os-18.2 · 200",
+    "RESTIC 44 snap · clean","CROWDSEC 15k bans","DEPLOY last-ok 3m","TLS exp 2026.11.25","SECTOR CLEAR"];
+  var seg = items.map(function (s) { var a = s.split(" "); return "<span><b>" + a.shift() + "</b> " + a.join(" ") + "</span>"; }).join("");
+  document.getElementById("stripRun").innerHTML = seg + seg;
+
+  /* entrance animation — never gates visibility. Hard net reveals all quickly. */
+  var revs = [].slice.call(document.querySelectorAll(".reveal"));
+  var revealAll = function () { revs.forEach(function (r) { r.classList.add("in"); }); };
+  if (!reduce && "IntersectionObserver" in window) {
+    revs.forEach(function (r) { r.classList.add("armed"); });
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: 0, rootMargin: "0px 0px 10% 0px" });
+    revs.forEach(function (r) { io.observe(r); });
+    setTimeout(revealAll, 400);      /* net — content is up within 0.4s no matter what */
+  }
+  var rp = document.getElementById("replay");
+  if (rp) rp.addEventListener("click", function () {
+    var b = document.querySelector("#s10 .reveal");
+    if (!b.classList.contains("armed")) return;
+    b.classList.remove("in"); void b.offsetWidth; b.classList.add("in");
+  });
+
+  /* topographic survey field — real contour polylines from a noise height-field,
+     with a very slow vertical drift. Restrained: thin steel lines, low alpha. */
+  var cv = document.getElementById("contour"), ctx = cv.getContext("2d"), W, H, dpr, drift = 0, rafId = 0;
+  /* height at (x, baseline) — smooth, multi-octave, so the contour lines wander
+     like a real survey map instead of a plain sine wave */
+  function h(x, b) {
+    return Math.sin(x * 0.0042 + b * 0.6) * 34
+         + Math.sin(x * 0.0011 - b * 0.9) * 22
+         + Math.cos(x * 0.009 + b * 1.7) * 8;
+  }
+  function paint() {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    var steel = getComputedStyle(root).getPropertyValue("--ef-line-2").trim() || "#4A4E56";
+    ctx.strokeStyle = steel; ctx.lineWidth = 1; ctx.lineJoin = "round";
+    var spacing = 46, i = 0;
+    for (var base = -80; base < H + 80; base += spacing, i++) {
+      var index = (i % 5 === 0);                 /* every 5th line = index contour */
+      ctx.globalAlpha = index ? 0.42 : 0.16;
+      ctx.lineWidth = index ? 1.15 : 1;
+      ctx.beginPath();
+      for (var x = -20; x <= W + 20; x += 10) {
+        var y = base + h(x, i * 0.8) + Math.sin((base + drift) * 0.02) * 6;
+        if (x === -20) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function resize() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    paint();
+  }
+  function loop() { drift += 0.06; paint(); rafId = requestAnimationFrame(loop); }
+  resize();
+  addEventListener("resize", resize);
+  if (!reduce) loop();
+  var themeMO = new MutationObserver(paint);
+  themeMO.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) { cancelAnimationFrame(rafId); rafId = 0; }
+    else if (!reduce && !rafId) loop();
+  });
+  var draw = resize;   /* the theme toggle calls draw() */
+
+  /* boot */
+  var boot = document.getElementById("boot"), bl = document.getElementById("bootLine"), he = document.getElementById("heroEcho");
+  function end() {
+    boot.classList.add("done");
+    setTimeout(function () { boot.remove(); }, 650);
+    if (!reduce && he) { he.style.animation = "ef-glitch .16s steps(2) 3"; setTimeout(function () { he.style.animation = ""; }, 640); }
+  }
+  if (reduce) { end(); }
+  else {
+    var msg = "INITIALIZING PROTOCOL // AUTOMATION-CORE", i = 0;
+    (function type() {
+      bl.textContent = msg.slice(0, i); i++;
+      if (i <= msg.length) setTimeout(type, 32); else setTimeout(end, 560);
+    })();
+    boot.addEventListener("click", end);
+  }
+})();
+</script>
